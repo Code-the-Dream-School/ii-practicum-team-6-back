@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
     {
-        userName: {
+        username: {
             type: String,
             required: true,
             trim: true,
@@ -22,6 +22,7 @@ const userSchema = new Schema(
         },
         bio: {
             type: String,
+            default : "",
             minlength: 10,
             maxlength: 500,
         },
@@ -31,7 +32,7 @@ const userSchema = new Schema(
         },
         skills: [{
             type: Schema.Types.ObjectId,
-            ref: "Skills",
+            ref: "Skill",
             default: []
         }],
         projectsIds: [{
