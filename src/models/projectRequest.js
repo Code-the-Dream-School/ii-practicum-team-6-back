@@ -17,6 +17,7 @@ const ProjectRequestSchema = new Schema(
             type: String,
             enum: ["pending", "approved", "declined"], 
             required: true,
+            default: "pending"
         },
         joinMessage: {
             type: String,

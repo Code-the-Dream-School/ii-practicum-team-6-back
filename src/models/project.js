@@ -16,36 +16,43 @@ const projectSchema = new Schema(
             trim: true,
         },
         createdBy: {
-            type: String,
-            required: true,
-            minlength: 6
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required : true
         },
         reqSpots: {
             type: Number,
             required: true,
+            min : 1,
+            default : 1
         },
-        teamMembers: [{
-            user: {
-                type: Schema.Types.ObjectId,
-                ref: "User",
-                required: true,
-            },
-            role: {
-                type: String,
-                enum: ["admin", "user"],
-                required: true,
-            }
-        }],
-        reqSkills: [{
-            type: Schema.Types.ObjectId,
+        teamMembers: {
+            type: [
+                {
+                    user: {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                        required: true,
+                    },
+                    role: {
+                        type: String,
+                        enum: ["admin", "user"],
+                        required: true,
+                    }
+                }
+            ],
+            default: []
+        },
+        reqSkills: {
+            type: [Schema.Types.ObjectId],
             ref: "Skill",
             default : []
-        }],
-        likes: [{
-            type: Schema.Types.ObjectId,
+        },
+        likes: {
+            type: [Schema.Types.ObjectId],
             ref: "User",
             default : []
-        }]
+        }
     },
     {
         timestamps: true,
