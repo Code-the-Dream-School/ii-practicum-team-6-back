@@ -19,21 +19,21 @@ const commentSchema = new Schema(
             ref: "User",
             required: true
         },
-        likes: [{
-            type: Schema.Types.ObjectId,
+        likes: {
+            type: [Schema.Types.ObjectId],
             ref: "User",
             default: []
-        }],
+        },
         parentComment: {
             type: Schema.Types.ObjectId,
             ref: "Comment",
             default: null
         },
-        replies: [{
-            type: Schema.Types.ObjectId,
+        replies: {
+            type: [Schema.Types.ObjectId],
             ref: "Comment",
             default: []
-        }],
+        },
 
 
     },

@@ -30,16 +30,16 @@ const userSchema = new Schema(
             type: String,
             default: ""
         },
-        skills: [{
-            type: Schema.Types.ObjectId,
+        skills: {
+            type: [Schema.Types.ObjectId],
             ref: "Skill",
             default: []
-        }],
-        projectsIds: [{
+        },
+        projectsIds: {
             type: Schema.Types.ObjectId,
             ref: "Project",
             default: []
-        }]
+        }
     }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
