@@ -5,18 +5,25 @@ const ProjectRequestSchema = new Schema(
     {
         projectId: {
             type: Schema.Types.ObjectId,
-            ref : "Project"
+            ref : "Project",
+            required: true
         },
         userId: {
             type: Schema.Types.ObjectId,
-            ref : "User"
+            ref : "User",
+            required: true
         },
         status: {
             type: String,
             enum: ["pending", "approved", "declined"], 
             required: true,
         },
-       
+        joinMessage: {
+            type: String,
+            required: true,
+            minlength: 10,
+            maxlength: 500,
+        },
     }, { timestamps: true });
 
 module.exports = mongoose.model('ProjectRequest', ProjectRequestSchema);

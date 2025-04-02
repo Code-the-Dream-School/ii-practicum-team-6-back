@@ -22,24 +22,23 @@ const userSchema = new Schema(
         },
         bio: {
             type: String,
+            minlength: 10,
             maxlength: 500,
         },
-        skills: {
-            type: [String],
-            default: [],
+        avatar: {
+            type: String,
+            default: ""
         },
-        // team_ids: {
-        //     type : Schema.Types.ObjectId,
-        //     ref : "Team"
-        // },
-        projects_requests_ids: {
+        skills: [{
             type: Schema.Types.ObjectId,
-            ref: "ProjectRequest"
-        },
-        projects_ids: {
+            ref: "Skills",
+            default: []
+        }],
+        projectsIds: [{
             type: Schema.Types.ObjectId,
-            ref: "Project"
-        },
+            ref: "Project",
+            default: []
+        }]
     }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
