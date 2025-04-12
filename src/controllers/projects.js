@@ -1,7 +1,8 @@
 const Project = require('../models/Project')
 const ProjectRequest = require('../models/projectRequest')
-const {StatusCodes, NOT_FOUND} = require('http-status-codes')
-const {NotFoundError, BadRequestError} = require('../errors')
+const {StatusCodes} = require('http-status-codes')
+const {NotFoundError, BadRequestError,UnauthenticatedError} = require('../errors')
+
 
 //list all projects
 const getAllProjects = async(req,res)=>{
@@ -13,7 +14,6 @@ const getAllProjects = async(req,res)=>{
     }
 }
 
-//create a new project
 const createProject = async(req,res)=>{
     try {
         // const{title, description, reqSpots, reqSkills }= req.body
@@ -27,7 +27,6 @@ const createProject = async(req,res)=>{
             reqSkills,
             teamMembers:[{user:createdBy,role:'admin'}]
         })
-        console.log('new project ',newProject);
         
         res.status(StatusCodes.CREATED).json({newProject})
     } catch (error) {
@@ -49,7 +48,7 @@ const getProjectById = async(req,res)=>{
 const updateProject = async (req, res) => {
     try {
         // const createdBy = req.user.id;
-        const { createdBy } = req.body; // Extract createdBy from the request body
+        const { createdBy } = req.body; 
     
         // Ensure that the project belongs to the user trying to update it
         if (req.project.createdBy.toString() !== createdBy) {
@@ -121,34 +120,25 @@ const addVote = async(req,res)=>{
     await project.save();
     res.status(StatusCodes.OK).json({ msg: 'Project liked', likesCount: project.likes.length });
 }
+
 //get all votes for a project
 const getAllVotes= async(req,res)=>{
-    const projectId = req.params.id
     // const userId = req.user.id;
     const {userId} = req.body;
-    const project= await Project.findById(projectId)
-    if(!project){
-        throw new NotFoundError(`No project with id ${projectId}`)
-    }
+    const project = req.project;
     const votesCount = project.likes.length;
     res.status(StatusCodes.OK).json({votesCount})
 }
 
 //remove a vote for a project
 const removeVote = async(req,res)=>{
-    const projectId = req.params.id
     // const userId = req.user.id;
     const {userId} = req.body;
-    const project = await Project.findById(projectId);
-    if (!project) {
-        throw new NotFoundError(`No project with id ${projectId}`);
-    }
-
+    const project = req.project;
     const index = project.likes.indexOf(userId);
     if (index === -1) {
         throw new BadRequestError('You have not liked this project');
     }
-
     project.likes.splice(index, 1);
     await project.save();
 
@@ -163,6 +153,10 @@ const sendJoinRequest = async(req,res)=>{
         // const userId = req.user.id
         const {userId,joinMessage} = req.body;
         const project = req.project;
+        const projectId = project._id;
+        if(!userId || !joinMessage){
+            throw new BadRequestError('User ID and join message are required')
+        }
         //check if user is a member
         const isMember = project.teamMembers.some(member => member.user.toString() === userId)
        
@@ -170,21 +164,21 @@ const sendJoinRequest = async(req,res)=>{
             throw new BadRequestError('User is already a project member.');
           }
         //check if a request is already exists
-        const existingRequest = await ProjectRequest.findOne({projectId, userId})
-    
-        if (existingRequest.status) {
-            existingRequest.status = 'pending';
-            existingRequest.joinMessage = joinMessage;
-            await existingRequest.save();
+        const updatedRequest = await ProjectRequest.findOneAndUpdate(
+            { projectId, userId },
+            { status: "pending", joinMessage },
+            { new: true }
+          );
+          if(updatedRequest){
             return res.status(StatusCodes.OK).json({ msg: 'Join request updated.', request: existingRequest });
-        }
+          }
         // Create new join request
-    const newRequest = await ProjectRequest.create({
-        projectId,
-        userId,
-        joinMessage,
-      });
-      res.status(StatusCodes.CREATED).json({ msg: 'Join request sent.', request: newRequest });
+        const newRequest = await ProjectRequest.create({
+            projectId,
+            userId,
+            joinMessage,
+        });
+        res.status(StatusCodes.CREATED).json({ msg: 'Join request sent.', request: newRequest });
       
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error sending join request', error });

@@ -8,4 +8,8 @@ class NotFoundError extends CustomAPIError {
   }
 }
 
+<<<<<<< HEAD
 module.exports = NotFoundError;
+=======
+module.exports = NotFoundError;
+>>>>>>> 72788ea (add some validation using joi)

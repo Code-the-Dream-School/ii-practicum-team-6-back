@@ -6,10 +6,13 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     msg: err.message || 'Something went wrong try again later',
   }
 
+<<<<<<< HEAD
   // if (err instanceof CustomAPIError) {
   //   return res.status(err.statusCode).json({ msg: err.message })
   // }
 
+=======
+>>>>>>> 72788ea (add some validation using joi)
   if (err.name === 'ValidationError') {
     customError.msg = Object.values(err.errors)
       .map((item) => item.message)
@@ -23,11 +26,19 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     customError.statusCode = 400
   }
   if (err.name === 'CastError') {
+<<<<<<< HEAD
     customError.msg = `No item found with id : ${err.value}`
+=======
+    customError.msg = `No item found with id : ${err.value || 'unknown'}`
+>>>>>>> 72788ea (add some validation using joi)
     customError.statusCode = 404
   }
 
   return res.status(customError.statusCode).json({ msg: customError.msg })
 }
 
+<<<<<<< HEAD
 module.exports = errorHandlerMiddleware
+=======
+module.exports = errorHandlerMiddleware
+>>>>>>> 72788ea (add some validation using joi)

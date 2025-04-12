@@ -3,7 +3,11 @@ const { NotFoundError } = require('../errors');
 
 const fetchProject = async (req, res, next) => {
     const { id: projectId } = req.params;
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 72788ea (add some validation using joi)
     try {
       const project = await Project.findById(projectId);
       if (!project) {
@@ -15,5 +19,10 @@ const fetchProject = async (req, res, next) => {
       next(err);
     }
   };
+<<<<<<< HEAD
   
   module.exports = fetchProject;
+=======
+
+  module.exports = fetchProject;
+>>>>>>> 72788ea (add some validation using joi)

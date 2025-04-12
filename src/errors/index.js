@@ -8,4 +8,8 @@ module.exports = {
   UnauthenticatedError,
   NotFoundError,
   BadRequestError,
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 72788ea (add some validation using joi)
