@@ -8,8 +8,4 @@ class BadRequestError extends CustomAPIError {
   }
 }
 
-<<<<<<< HEAD
 module.exports = BadRequestError;
-=======
-module.exports = BadRequestError;
->>>>>>> 72788ea (add some validation using joi)

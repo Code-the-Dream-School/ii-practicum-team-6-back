@@ -8,8 +8,4 @@ class UnauthenticatedError extends CustomAPIError {
   }
 }
 
-<<<<<<< HEAD
 module.exports = UnauthenticatedError;
-=======
-module.exports = UnauthenticatedError;
->>>>>>> 72788ea (add some validation using joi)
