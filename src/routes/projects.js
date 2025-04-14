@@ -14,7 +14,8 @@ const {
     addVote,
     getAllVotes,
     removeVote,
-    getProjectJoinRequests}= require('../controllers/projects')
+    getProjectJoinRequests,
+    unsendJoinRequest}= require('../controllers/projects')
 
 const router = express.Router()
 
@@ -22,7 +23,8 @@ router.route('/').get(getAllProjects).post(validate(projectValidationSchema),cre
 router.route('/:id').all(fetchProjectMiddleware).get(getProjectById).delete(deleteProject).patch(validate(projectValidationSchema),updateProject)
 router.route('/:id/leave').post(fetchProjectMiddleware,leaveProject)
 // ========= join requests for a project ===============
-router.route('/:id/join-requests').all(fetchProjectMiddleware).post(sendJoinRequest).get(getProjectJoinRequests)
+router.route('/:id/join-requests').all(fetchProjectMiddleware).post(sendJoinRequest).get(getProjectJoinRequests).delete(unsendJoinRequest)
+
 // =============== votes for a project =================
 router.route('/:id/votes').all(fetchProjectMiddleware).post(addVote).get(getAllVotes).delete(removeVote)
 
