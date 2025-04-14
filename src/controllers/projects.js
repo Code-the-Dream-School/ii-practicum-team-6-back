@@ -170,7 +170,7 @@ const sendJoinRequest = async(req,res)=>{
             { new: true }
           );
           if(updatedRequest){
-            return res.status(StatusCodes.OK).json({ msg: 'Join request updated.', request: existingRequest });
+            return res.status(StatusCodes.OK).json({ msg: 'Join request updated.', request: updatedRequest });
           }
         // Create new join request
         const newRequest = await ProjectRequest.create({
@@ -183,6 +183,23 @@ const sendJoinRequest = async(req,res)=>{
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error sending join request', error });
     }
+}
+
+const unsendJoinRequest  = async(req,res)=>{
+    try {
+        // const userId = req.user.id
+        const {userId} = req.body;
+        const projectId = req.project._id
+
+        const removeRequest = await ProjectRequest.findOneAndDelete({projectId,userId})
+        if(!removeRequest){
+            throw new NotFoundError(`No project with id ${projectId}`);
+        }
+        res.status(StatusCodes.OK).json({msg:"Join Request unsend successfully"})
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error unsending join request', error });
+    }
+   
 }
 
 //get all join requests for a project
@@ -206,6 +223,7 @@ module.exports ={
     addVote,
     removeVote,
     sendJoinRequest,
+    unsendJoinRequest,
     getProjectJoinRequests,
     getAllVotes
 }
