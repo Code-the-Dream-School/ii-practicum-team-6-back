@@ -7,7 +7,9 @@ const logger = require('morgan');
 const projectRouter = require('./routes/projects.js')
 const notFoundMiddleware = require('./middleware/not-found.js');
 const errorHandlerMiddleware = require('./middleware/error-handler.js');
-
+//swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger.js');
 
 
 // middleware
@@ -17,7 +19,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
-
+//swager
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/projects/',projectRouter)
 
 app.use(notFoundMiddleware);

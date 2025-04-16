@@ -4,7 +4,7 @@ const {StatusCodes} = require('http-status-codes')
 const {NotFoundError, BadRequestError,UnauthenticatedError} = require('../errors')
 
 
-//list all projects
+
 const getAllProjects = async(req,res)=>{
     try {
         const projects = await Project.find({})
@@ -78,7 +78,7 @@ const deleteProject = async(req,res)=>{
         const deletedProject=  await req.project.remove();
         res.status(StatusCodes.OK).json({project:deletedProject})
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error getting the project", error });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error deleting the project", error });
     }
 }
 
