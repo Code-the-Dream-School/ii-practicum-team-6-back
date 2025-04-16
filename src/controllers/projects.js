@@ -3,7 +3,6 @@ const ProjectRequest = require('../models/projectRequest')
 const {StatusCodes} = require('http-status-codes')
 const {NotFoundError, BadRequestError,UnauthenticatedError} = require('../errors')
 
-
 const getAllProjects = async(req,res)=>{
     try {
         const projects = await Project.find({})
@@ -54,6 +53,7 @@ const updateProject = async (req, res) => {
     
         Object.assign(req.project, req.body);
     
+        // Save the updated project to the database
         const updatedProject = await req.project.save();
     
         return res.status(StatusCodes.OK).json({ project: updatedProject });
@@ -61,7 +61,6 @@ const updateProject = async (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error updating the project", error });
     }
   };
-
 
 const deleteProject = async(req,res)=>{
     try {
@@ -74,7 +73,7 @@ const deleteProject = async(req,res)=>{
         const deletedProject=  await req.project.remove();
         res.status(StatusCodes.OK).json({project:deletedProject})
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error getting the project", error });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error deleting the project", error });
     }
 }
 
@@ -101,7 +100,6 @@ const leaveProject = async(req,res)=>{
     
 }
 
-
 const addVote = async(req,res)=>{
     // const userId = req.user.id;
     const {userId} = req.body;
@@ -125,6 +123,7 @@ const getAllVotes= async(req,res)=>{
     res.status(StatusCodes.OK).json({votesCount})
 }
 
+
 const removeVote = async(req,res)=>{
     // const userId = req.user.id;
     const {userId} = req.body;
@@ -135,11 +134,11 @@ const removeVote = async(req,res)=>{
     }
     project.likes.splice(index, 1);
     await project.save();
-
     res.status(StatusCodes.OK).json({ msg: 'Project unvoted', likesCount: project.likes.length });
 }
 
 // ============ PROJECT REQUEST  =============
+
 
 const sendJoinRequest = async(req,res)=>{
     try {
@@ -150,6 +149,7 @@ const sendJoinRequest = async(req,res)=>{
         if(!userId || !joinMessage){
             throw new BadRequestError('User ID and join message are required')
         }
+        //check if user is a member
         const isMember = project.teamMembers.some(member => member.user.toString() === userId)
        
         if (isMember) {
@@ -193,7 +193,6 @@ const unsendJoinRequest  = async(req,res)=>{
     }
    
 }
-
 const getProjectJoinRequests = async(req,res)=>{
     const projectId = req.project._id;
     const requests = await ProjectRequest.find({projectId});
