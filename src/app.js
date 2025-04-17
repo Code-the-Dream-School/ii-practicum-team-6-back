@@ -11,7 +11,6 @@ const errorHandlerMiddleware = require('./middleware/error-handler.js');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger.js');
 
-
 // middleware
 app.use(cors());
 app.use(express.json());
@@ -21,12 +20,6 @@ app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
 //swager
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/projects/',projectRouter)
-
-app.use(notFoundMiddleware);
-app.use(errorHandlerMiddleware);
-
-// routes
 app.use('/api/projects/',projectRouter)
 
 app.use(notFoundMiddleware);

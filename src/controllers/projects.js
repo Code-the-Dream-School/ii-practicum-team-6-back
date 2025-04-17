@@ -3,8 +3,6 @@ const ProjectRequest = require('../models/projectRequest')
 const {StatusCodes} = require('http-status-codes')
 const {NotFoundError, BadRequestError,UnauthenticatedError} = require('../errors')
 
-
-
 const getAllProjects = async(req,res)=>{
     try {
         const projects = await Project.find({})
@@ -34,7 +32,6 @@ const createProject = async(req,res)=>{
     }
 }
 
-//find a project by its id
 const getProjectById = async(req,res)=>{
     try {
         const project = req.project; //comes from middleware
@@ -44,7 +41,6 @@ const getProjectById = async(req,res)=>{
     }
 }
 
-//update a project record(only the project owner)
 const updateProject = async (req, res) => {
     try {
         // const createdBy = req.user.id;
@@ -66,7 +62,6 @@ const updateProject = async (req, res) => {
     }
   };
 
-//delete a project record
 const deleteProject = async(req,res)=>{
     try {
         // const createdBy = req.user.id
@@ -82,7 +77,6 @@ const deleteProject = async(req,res)=>{
     }
 }
 
-//user leave a project
 const leaveProject = async(req,res)=>{
     try {
         // const userId = req.user.id;
@@ -106,7 +100,6 @@ const leaveProject = async(req,res)=>{
     
 }
 
-//add vote/like to a project
 const addVote = async(req,res)=>{
     // const userId = req.user.id;
     const {userId} = req.body;
@@ -121,7 +114,7 @@ const addVote = async(req,res)=>{
     res.status(StatusCodes.OK).json({ msg: 'Project liked', likesCount: project.likes.length });
 }
 
-//get all votes for a project
+
 const getAllVotes= async(req,res)=>{
     // const userId = req.user.id;
     const {userId} = req.body;
@@ -130,7 +123,7 @@ const getAllVotes= async(req,res)=>{
     res.status(StatusCodes.OK).json({votesCount})
 }
 
-//remove a vote for a project
+
 const removeVote = async(req,res)=>{
     // const userId = req.user.id;
     const {userId} = req.body;
@@ -141,13 +134,12 @@ const removeVote = async(req,res)=>{
     }
     project.likes.splice(index, 1);
     await project.save();
-
     res.status(StatusCodes.OK).json({ msg: 'Project unvoted', likesCount: project.likes.length });
 }
 
 // ============ PROJECT REQUEST  =============
 
-//send a join request for a project
+
 const sendJoinRequest = async(req,res)=>{
     try {
         // const userId = req.user.id
@@ -202,7 +194,6 @@ const unsendJoinRequest  = async(req,res)=>{
    
 }
 
-//get all join requests for a project
 const getProjectJoinRequests = async(req,res)=>{
     const projectId = req.project._id;
     const requests = await ProjectRequest.find({projectId});
