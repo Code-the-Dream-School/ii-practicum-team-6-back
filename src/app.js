@@ -5,6 +5,7 @@ const favicon = require('express-favicon');
 const logger = require('morgan');
 //project router
 const projectRouter = require('./routes/projects.js')
+const skillRouter = require('./routes/skills.js')
 const notFoundMiddleware = require('./middleware/not-found.js');
 const errorHandlerMiddleware = require('./middleware/error-handler.js');
 //swagger
@@ -21,6 +22,7 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 //swager
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/projects/',projectRouter)
+app.use('/api/skills',skillRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
