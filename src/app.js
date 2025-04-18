@@ -6,6 +6,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/user')
 const {errorHandler} = require('./middleware/erroHandlerMiddleware')
 
 
@@ -29,16 +30,20 @@ app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
 //swager
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/projects/',projectRouter)
 
-app.use(notFoundMiddleware);
-app.use(errorHandlerMiddleware);
+
+
 // routes
 //app.use('/api/v1', mainRouter);
-app.use("/auth", authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects/',projectRouter)
+
 
 //error handler
 app.use(errorHandler)
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 
 module.exports = app;

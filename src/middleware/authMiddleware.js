@@ -20,7 +20,7 @@ exports.authenticate = (req, res, next) => {
             if (decoded.exp < currentTime) {
                 return res.status(401).json({ message: 'Token expired' });
             }
-            req.user = decoded; 
+            req.user = decoded.user; 
             next();
         })
     }
