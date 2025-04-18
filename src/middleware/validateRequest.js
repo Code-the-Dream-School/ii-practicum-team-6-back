@@ -1,8 +1,8 @@
 
-exports.validateRequest = (schema) => {
+exports.validateRequest = (schema, type = 'body') => {
     return (req, res, next) => {
-        console.log(req.body)
-        const { error } = schema.validate(req.body)
+        const data = req[type];
+        const { error } = schema.validate(data) 
         if (error) {
             return res.status(400).json({
                 message: 'Validation error',
