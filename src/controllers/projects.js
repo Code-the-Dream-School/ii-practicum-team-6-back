@@ -13,10 +13,12 @@ const getAllProjects = async(req,res)=>{
 }
 
 const createProject = async(req,res)=>{
+    console.log('created by', req.user.id);
     try {
-        // const{title, description, reqSpots, reqSkills }= req.body
-        // const userId = req.user.id
-        const{title, description,reqSpots,reqSkills,createdBy }= req.body
+        
+        const{title, description, reqSpots, reqSkills }= req.body
+        const createdBy = req.user.id
+        
         const newProject = await Project.create({
             title,
             description,
