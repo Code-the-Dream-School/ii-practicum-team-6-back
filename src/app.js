@@ -13,6 +13,7 @@ const {errorHandler} = require('./middleware/erroHandlerMiddleware')
 
 //project router
 const projectRouter = require('./routes/projects.js')
+const skillRouter = require('./routes/skills.js')
 const notFoundMiddleware = require('./middleware/not-found.js');
 const errorHandlerMiddleware = require('./middleware/error-handler.js');
 //swagger
@@ -38,6 +39,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects/',projectRouter)
+app.use('/api/skills',skillRouter)
 
 
 //error handler
