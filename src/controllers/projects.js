@@ -14,9 +14,9 @@ const getAllProjects = async(req,res)=>{
 
 const createProject = async(req,res)=>{
     try {
-        //const{title, description, reqSpots, reqSkills }= req.body
-        //const createdBy = req.user.id
-        const{title, description, reqSpots, reqSkills,createdBy }= req.body
+        const{title, description, reqSpots, reqSkills }= req.body
+        const createdBy = req.user.id
+        
         const newProject = await Project.create({
             title,
             description,
@@ -43,17 +43,14 @@ const getProjectById = async(req,res)=>{
 
 const updateProject = async (req, res) => {
     try {
-        // const createdBy = req.user.id;
-        const { createdBy } = req.body; 
-    
+        const createdBy = req.user.id;
         // Ensure that the project belongs to the user trying to update it
         if (req.project.createdBy.toString() !== createdBy) {
             return res.status(StatusCodes.FORBIDDEN).json({msg: "You are not authorized to update this project"});
         }
     
         Object.assign(req.project, req.body);
-    
-        // Save the updated project to the database
+
         const updatedProject = await req.project.save();
     
         return res.status(StatusCodes.OK).json({ project: updatedProject });
@@ -64,13 +61,14 @@ const updateProject = async (req, res) => {
 
 const deleteProject = async(req,res)=>{
     try {
-        // const createdBy = req.user.id
-        const {createdBy} = req.body;
+        const createdBy = req.user.id
+        
          // Ensure that the project belongs to the user trying to delete it
         if (req.project.createdBy.toString() !== createdBy) {
             return res.status(StatusCodes.FORBIDDEN).json({msg: "You are not authorized to delete this project"});
         }
-        const deletedProject=  await req.project.remove();
+        const deletedProject=  await req.project.deleteOne();
+        
         res.status(StatusCodes.OK).json({project:deletedProject})
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error deleting the project", error });
@@ -79,8 +77,7 @@ const deleteProject = async(req,res)=>{
 
 const leaveProject = async(req,res)=>{
     try {
-        // const userId = req.user.id;
-        const {userId} = req.body;
+        const userId = req.user.id;
         const project = req.project;
         //check if user is a member
         const isMember = project.teamMembers.some(member=> member.user.toString() === userId)
@@ -101,8 +98,7 @@ const leaveProject = async(req,res)=>{
 }
 
 const addVote = async(req,res)=>{
-    // const userId = req.user.id;
-    const {userId} = req.body;
+    const userId = req.user.id;
     const project = req.project;
     //check if user already liked a project
     const alreadyVote = project.likes.includes(userId)
@@ -116,8 +112,6 @@ const addVote = async(req,res)=>{
 
 
 const getAllVotes= async(req,res)=>{
-    // const userId = req.user.id;
-    const {userId} = req.body;
     const project = req.project;
     const votesCount = project.likes.length;
     res.status(StatusCodes.OK).json({votesCount})
@@ -126,8 +120,7 @@ const getAllVotes= async(req,res)=>{
 
 
 const removeVote = async(req,res)=>{
-    // const userId = req.user.id;
-    const {userId} = req.body;
+    const userId = req.user.id;
     const project = req.project;
     const index = project.likes.indexOf(userId);
     if (index === -1) {

@@ -10,7 +10,6 @@ const userRoutes = require('./routes/user')
 const {errorHandler} = require('./middleware/erroHandlerMiddleware')
 
 
-
 //project router
 const projectRouter = require('./routes/projects.js')
 const skillRouter = require('./routes/skills.js')
