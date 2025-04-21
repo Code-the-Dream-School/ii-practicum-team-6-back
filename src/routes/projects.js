@@ -1,6 +1,7 @@
 const express = require('express');
 const fetchProjectMiddleware = require('../middleware/fetchProject');
 const validate = require('../middleware/projectValidate');
+const {authenticate} = require('../middleware/authMiddleware')
 const { projectValidationSchema } = require('../validators/project');
 
 const {
@@ -560,7 +561,7 @@ router.route('/:id/votes')
 
 router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
-  .post(sendJoinRequest)
+  .post(authenticate,sendJoinRequest)
   .get(getProjectJoinRequests)
-  .delete(unsendJoinRequest);
+  .delete(authenticate,unsendJoinRequest);
 module.exports = router;
