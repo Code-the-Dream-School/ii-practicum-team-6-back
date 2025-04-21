@@ -15,6 +15,14 @@ const options = {
     ],
     tags: [
       {
+        name: 'Auth',
+        description: 'Endpoints for registrating, authorization, logging out, and resetting password.',
+      },
+      {
+        name: 'User',
+        description: 'Endpoints for fetching data about users, updating and deleting profile.',
+      },
+      {
         name: 'Projects',
         description: 'Endpoints for creating, updating, deleting, and retrieving projects.',
       },
@@ -72,7 +80,28 @@ const options = {
             updatedAt: { type: 'string', example: '2024-04-08T13:00:00Z' },
           },
         },
+        User : {
+          type: 'object',
+          properties: {
+            _id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
+            username: { type: 'string', example: 'johndoe' },
+            email: { type: 'string', example: 'johndoe@example.com' },
+            bio: { type: 'string', example: 'Full-stack developer with a passion for clean code.' },
+            avatar: { type: 'string', example: 'https://cdn.example.com/avatars/val.jpg' },
+            skills: {
+              type: 'array',
+              items: { type: 'string', example: '660a3aabc32c7f5320e9a4e9' }
+            },
+            projectsIds: {
+              type: 'array',
+              items: { type: 'string', example: '660b01e0cd3f4a3fb40aa67e' }
+            },
+            createdAt: { type: 'string', format: 'date-time', example: '2024-04-08T12:00:00Z' },
+            updatedAt: { type: 'string', format: 'date-time', example: '2024-04-08T13:00:00Z' },
+          }
+        }
       },
+      
     },
   },
   apis: ['./src/routes/*.js'], // path to your route files with swagger annotations
