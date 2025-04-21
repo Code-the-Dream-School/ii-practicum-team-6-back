@@ -1,8 +1,9 @@
 const express = require('express');
 const fetchProjectMiddleware = require('../middleware/fetchProject');
 const validate = require('../middleware/projectValidate');
-const { projectValidationSchema } = require('../validators/project');
-
+const { projectCreateValidation } = require('../validators/projectCreateValidation');
+const {projectUpdateValidation} = require('../validators/projectUpdateValidation')
+const { authenticate } = require('../middleware/authMiddleware');
 const {
   getAllProjects,
   createProject,
@@ -84,7 +85,7 @@ const router = express.Router();
  */
 router.route('/')
   .get(getAllProjects)
-  .post(validate(projectValidationSchema), createProject);
+  .post(authenticate,validate(projectCreateValidation), createProject);
 
 /**
  * @swagger
@@ -206,8 +207,8 @@ router.route('/')
 router.route('/:id')
   .all(fetchProjectMiddleware)
   .get(getProjectById)
-  .delete(deleteProject)
-  .patch(validate(projectValidationSchema), updateProject);
+  .delete(authenticate,deleteProject)
+  .patch(authenticate,validate(projectUpdateValidation), updateProject);
 
 /**
  * @swagger
@@ -255,7 +256,7 @@ router.route('/:id')
  *                   example: "Error leaving the project"
  */
 router.route('/:id/leave')
-  .post(fetchProjectMiddleware, leaveProject);
+  .post(authenticate,fetchProjectMiddleware, leaveProject);
   /**
  * @swagger
  * tags:
@@ -384,9 +385,9 @@ router.route('/:id/leave')
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
-  .post(addVote)
+  .post(authenticate,addVote)
   .get(getAllVotes)
-  .delete(removeVote);
+  .delete(authenticate,removeVote);
 
 /**
  /**

@@ -1,9 +1,8 @@
 const Joi = require('joi');
 
-const projectValidationSchema = Joi.object({
+const projectCreateValidation = Joi.object({
   title: Joi.string().trim().max(50).required(),
   description: Joi.string().trim().max(500).required(),
-  createdBy: Joi.string().hex().length(24).required(), // mongoDB ObjectId format
   reqSpots: Joi.number().min(1).required(),
   
   reqSkills: Joi.array()
@@ -22,4 +21,4 @@ const projectValidationSchema = Joi.object({
     .default([])
 });
 
-module.exports = {projectValidationSchema}
+module.exports = {projectCreateValidation}
