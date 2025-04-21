@@ -17,6 +17,6 @@ const projectUpdateValidation = Joi.object({
 
   likes: Joi.array()
     .items(Joi.string().hex().length(24))
-}).min(1); // <-- this ensures at least one field is sent in PATCH
+}).min(1); 
 
 module.exports = { projectUpdateValidation };
