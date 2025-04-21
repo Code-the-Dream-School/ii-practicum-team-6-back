@@ -118,6 +118,7 @@ const getAllVotes= async(req,res)=>{
 }
 
 
+
 const removeVote = async(req,res)=>{
     const userId = req.user.id;
     const project = req.project;
@@ -133,10 +134,11 @@ const removeVote = async(req,res)=>{
 // ============ PROJECT REQUEST  =============
 
 
+
 const sendJoinRequest = async(req,res)=>{
     try {
-        // const userId = req.user.id
-        const {userId,joinMessage} = req.body;
+        const userId = req.user.id
+        const {joinMessage} = req.body;
         const project = req.project;
         const projectId = project._id;
         if(!userId || !joinMessage){
@@ -172,8 +174,7 @@ const sendJoinRequest = async(req,res)=>{
 
 const unsendJoinRequest  = async(req,res)=>{
     try {
-        // const userId = req.user.id
-        const {userId} = req.body;
+        const userId = req.user.id
         const projectId = req.project._id
 
         const removeRequest = await ProjectRequest.findOneAndDelete({projectId,userId})

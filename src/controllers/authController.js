@@ -56,11 +56,7 @@ exports.signOut = (req, res, next) => {
 exports.authMe = (req, res, next) => {
     console.log("auth")
     try {
-        if (!req.user) {
-            return res.status(401).json({ message: "Not Authorized" });
-        }
         const user = req.user;
-        console.log(req.user)
         res.status(200).json({
             message: 'Authentication Succesfull',
             user: toUserResponseDto(user)
@@ -74,7 +70,7 @@ exports.authMe = (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
 
     try {
-        const email = req.user.email;
+        const email = req.body.email;
         await authService.forgotPassword(email);
         res.status(200).send('Check your email for instructions on resetting your password');
     }
