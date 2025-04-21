@@ -22,8 +22,7 @@ const userSchema = new Schema(
         },
         bio: {
             type: String,
-            default : "",
-            minlength: 10,
+            default: "",
             maxlength: 500,
         },
         avatar: {
@@ -31,15 +30,25 @@ const userSchema = new Schema(
             default: ""
         },
         skills: {
-            type: [Schema.Types.ObjectId],
-            ref: "Skill",
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Skill',
+                }
+            ],
             default: []
         },
         projectsIds: {
-            type: Schema.Types.ObjectId,
-            ref: "Project",
+            type: [
+                {
+                    type: Schema.Types.ObjectId,
+                    ref: "Project"
+                }
+            ],
             default: []
-        }
+        },
+        resetPasswordToken: String,
+        resetPasswordExpires: Date
     }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,0 +1,82 @@
+const User = require('../models/user')
+const Skill = require('../models/skill')
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const BadRequestError = require('../errors/bad-request')
+const UnauthenticatedError = require('../errors/unauthenticated')
+const NotFoundError = require('../errors/not-found')
+const userIdSchema = require('../validators/userIdValidator')
+const resetPasswordSchema = require('../validators/resetPasswordValidator')
+const userService = require('../services/userServices')
+const { toUsersResponseDto, toUserResponseDto } = require('../dtos/user.dto')
+
+exports.getAllUsers = async (req, res, next) => {
+
+    try {
+        const users = await userService.getAllUsers()
+        res.status(200).json({
+            message: 'Users Fetched Succesfully',
+            users: toUsersResponseDto(users)
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+
+exports.getUserById = async (req, res, next) => {
+
+    try {
+        const userId = req.params.id
+        const user = await userService.getUserById(userId)
+
+        res.status(200).json({
+            message: 'User Fetched Successfully',
+            user: toUserResponseDto(user)
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+
+}
+
+
+exports.updateMyProfile = async (req, res, next) => {
+
+    try {
+        const userId = req.user.id
+        const { username, bio, skills } = req.body
+        const user = await userService.updateMyProfile(userId, username, bio, skills)
+
+        res.status(200).json({
+            message: 'User Updated Succesfully',
+            user: toUserResponseDto(user)
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+exports.deleteMyProfile = async (req, res, next) => {
+
+    try {
+        const userId = req.user.id
+        
+        await userService.deleteMyProfile(userId)
+
+        res.clearCookie('token');
+        res.status(200).json({
+            message: 'User Deleted Succesfully',
+        })
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
