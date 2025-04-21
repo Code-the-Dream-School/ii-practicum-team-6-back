@@ -1,8 +1,8 @@
 const express = require('express');
 const fetchProjectMiddleware = require('../middleware/fetchProject');
 const validate = require('../middleware/projectValidate');
-const { projectCreateValidation } = require('../validators/projectCreateValidation');
-const {projectUpdateValidation} = require('../validators/projectUpdateValidation')
+const { projectCreateValidation } = require('../validators/projectCreateValidator');
+const {projectUpdateValidation} = require('../validators/projectUpdateValidator')
 const { authenticate } = require('../middleware/authMiddleware');
 const {
   getAllProjects,
