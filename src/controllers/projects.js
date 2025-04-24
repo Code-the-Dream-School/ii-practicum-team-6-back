@@ -1,4 +1,4 @@
-const Project = require('../models/Project')
+const Project = require('../models/project')
 const ProjectRequest = require('../models/projectRequest')
 const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
 

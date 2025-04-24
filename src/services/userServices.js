@@ -12,7 +12,7 @@ const userIdSchema = require('../validators/userIdValidator')
 
 exports.getAllUsers = async () => {
 
-    const users = await User.find()
+    const users = await User.find().populate('skills', 'name')
 
     if (!users) {
         throw new BadRequestError('Error fetching Users')
@@ -22,7 +22,7 @@ exports.getAllUsers = async () => {
 
 exports.getUserById = async (userId) => {
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate('skills', 'name');
 
     if (!user) {
         throw new BadRequestError('Error fetching User')
@@ -34,7 +34,7 @@ exports.getUserById = async (userId) => {
 
 exports.updateMyProfile = async (userId, username, bio, skills) => {
 
-    const currentUser = await User.findById(userId)
+    const currentUser = await User.findById(userId).populate('skills', 'name')
 
     if (!currentUser) {
         throw new NotFoundError('User not found')

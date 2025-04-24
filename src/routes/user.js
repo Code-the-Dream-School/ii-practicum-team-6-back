@@ -24,7 +24,7 @@ const { validateRequest } = require('../middleware/projectRequestValidate')
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Users Fetched Succesfully
+ *                   example: Users Fetched Successfully
  *                 users:
  *                   type: array
  *                   items:
@@ -149,7 +149,7 @@ router.get('/:id', authenticate, validateRequest(userIdSchema, 'params'), userCo
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User Deleted Succesfully
+ *                   example: User Deleted Successfully
  *       404:
  *         description: User not found
  *         content:

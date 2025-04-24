@@ -50,7 +50,7 @@ const resetPasswordSchema = require('../validators/resetPasswordValidator');
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User Created Succesfully
+ *                   example: User Created Successfully
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       400:
@@ -60,7 +60,7 @@ const resetPasswordSchema = require('../validators/resetPasswordValidator');
  *             schema:
  *               type: object
  *               properties:
- *                 succes:
+ *                 success:
  *                   type: boolean
  *                   example: false
  *                 status:
@@ -113,7 +113,7 @@ router.post('/register', validateRequest(registerSchema), authController.signUp)
  *             schema:
  *               type: object
  *               properties:
- *                 succes:
+ *                 success:
  *                   type: boolean
  *                   example: false
  *                 status:
@@ -143,7 +143,7 @@ router.post('/login', validateRequest(loginSchema), authController.signIn)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Users Loged out Succesfully
+ *                   example: Users Loged out Successfully
  *       400:
  *         description: User already logged out
  *         content:
@@ -183,7 +183,7 @@ router.post('/logout', authController.signOut)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Authentication Succesfull
+ *                   example: Authentication Successfull
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:

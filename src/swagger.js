@@ -80,17 +80,25 @@ const options = {
             updatedAt: { type: 'string', example: '2024-04-08T13:00:00Z' },
           },
         },
-        User : {
+        Skill: {
           type: 'object',
           properties: {
-            _id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
+            id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
+            name: { type: 'string', example: 'JavaScript' },
+
+          }
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
             username: { type: 'string', example: 'johndoe' },
             email: { type: 'string', example: 'johndoe@example.com' },
             bio: { type: 'string', example: 'Full-stack developer with a passion for clean code.' },
             avatar: { type: 'string', example: 'https://cdn.example.com/avatars/val.jpg' },
             skills: {
               type: 'array',
-              items: { type: 'string', example: '660a3aabc32c7f5320e9a4e9' }
+              items: { $ref: '#/components/schemas/Skill' }
             },
             projectsIds: {
               type: 'array',
@@ -101,7 +109,7 @@ const options = {
           }
         }
       },
-      
+
     },
   },
   apis: ['./src/routes/*.js'], // path to your route files with swagger annotations
