@@ -1,18 +1,21 @@
 const Project = require('../models/Project')
 const ProjectRequest = require('../models/projectRequest')
-const {StatusCodes} = require('http-status-codes')
-const {NotFoundError, BadRequestError,UnauthenticatedError} = require('../errors')
+const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
 
-const getAllProjects = async(req,res)=>{
+const getAllProjects = async(req,res, next)=>{
     try {
         const projects = await Project.find({})
-        res.status(StatusCodes.OK).json({projects})
+        res.status(200).json({
+            success: true,
+            message: "Projects fetched successfully",
+            data: { projects }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error fetching projects", error });
+        next(error);
     }
 }
 
-const createProject = async(req,res)=>{
+const createProject = async(req,res, next)=>{
     try {
         const{title, description, reqSpots, reqSkills }= req.body
         const createdBy = req.user.id
@@ -25,57 +28,67 @@ const createProject = async(req,res)=>{
             reqSkills,
             teamMembers:[{user:createdBy,role:'admin'}]
         })
-        
-        res.status(StatusCodes.CREATED).json({newProject})
+        res.status(201).json({
+            success: true,
+            message: "Project created successfully",
+            data: { project: newProject }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error creating project", error });
+        next(error);
     }
 }
 
-const getProjectById = async(req,res)=>{
+const getProjectById = async(req,res, next)=>{
     try {
         const project = req.project; //comes from middleware
-        res.status(StatusCodes.OK).json({project})
+        res.status(200).json({
+            success: true,
+            message: "Project fetched successfully",
+            data: { project: project }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error getting the project", error });
+        next(error);
     }
 }
 
-const updateProject = async (req, res) => {
+const updateProject = async (req, res, next) => {
     try {
         const createdBy = req.user.id;
         // Ensure that the project belongs to the user trying to update it
         if (req.project.createdBy.toString() !== createdBy) {
-            return res.status(StatusCodes.FORBIDDEN).json({msg: "You are not authorized to update this project"});
+            throw new ForbiddenError("You are not authorized to update this project")
         }
-    
         Object.assign(req.project, req.body);
-
         const updatedProject = await req.project.save();
-    
-        return res.status(StatusCodes.OK).json({ project: updatedProject });
+        res.status(200).json({
+            success: true,
+            message: "Project updated successfully",
+            data: { project: updatedProject }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error updating the project", error });
+        next(error);
     }
   };
 
-const deleteProject = async(req,res)=>{
+const deleteProject = async(req,res, next)=>{
     try {
         const createdBy = req.user.id
-        
          // Ensure that the project belongs to the user trying to delete it
         if (req.project.createdBy.toString() !== createdBy) {
-            return res.status(StatusCodes.FORBIDDEN).json({msg: "You are not authorized to delete this project"});
+            throw new ForbiddenError('You are not authorized to delete this project')
         }
         const deletedProject=  await req.project.deleteOne();
-        
-        res.status(StatusCodes.OK).json({project:deletedProject})
+        res.status(200).json({
+            success: true,
+            message: "Project deleted successfully",
+            data: { project: deletedProject }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error deleting the project", error });
+        next(error);
     }
 }
 
-const leaveProject = async(req,res)=>{
+const leaveProject = async(req,res, next)=>{
     try {
         const userId = req.user.id;
         const project = req.project;
@@ -90,14 +103,16 @@ const leaveProject = async(req,res)=>{
             member => member.user.toString() !== userId
         );
         await project.save();
-        res.status(StatusCodes.OK).json({msg: 'User has successfully left the project' })
+        res.status(200).json({
+            success: true,
+            message: "User has successfully left the project",
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Error leaving the project", error });
+        next(error);
     }
-    
 }
 
-const addVote = async(req,res)=>{
+const addVote = async(req,res, next)=>{
     const userId = req.user.id;
     const project = req.project;
     //check if user already liked a project
@@ -107,19 +122,24 @@ const addVote = async(req,res)=>{
     }
     project.likes.push(userId);
     await project.save();
-    res.status(StatusCodes.OK).json({ msg: 'Project liked', likesCount: project.likes.length });
+    res.status(200).json({
+        success: true,
+        message: "Project liked",
+        data: { likesCount: project.likes.length }
+    });
 }
 
-
-const getAllVotes= async(req,res)=>{
+const getAllVotes= async(req,res, next)=>{
     const project = req.project;
     const votesCount = project.likes.length;
-    res.status(StatusCodes.OK).json({votesCount})
+    res.status(200).json({
+        success: true,
+        message: "Project likes fetched successfully",
+        data: { likesCount: votesCount }
+    });
 }
 
-
-
-const removeVote = async(req,res)=>{
+const removeVote = async(req,res, next)=>{
     const userId = req.user.id;
     const project = req.project;
     const index = project.likes.indexOf(userId);
@@ -128,14 +148,15 @@ const removeVote = async(req,res)=>{
     }
     project.likes.splice(index, 1);
     await project.save();
-    res.status(StatusCodes.OK).json({ msg: 'Project unvoted', likesCount: project.likes.length });
+    res.status(200).json({
+        success: true,
+        message: "Project unvoted",
+        data: { likesCount: project.likes.length }
+    });
 }
 
 // ============ PROJECT REQUEST  =============
-
-
-
-const sendJoinRequest = async(req,res)=>{
+const sendJoinRequest = async(req,res, next)=>{
     try {
         const userId = req.user.id
         const {joinMessage} = req.body;
@@ -157,7 +178,11 @@ const sendJoinRequest = async(req,res)=>{
             { new: true }
           );
           if(updatedRequest){
-            return res.status(StatusCodes.OK).json({ msg: 'Join request updated.', request: updatedRequest });
+            return res.status(200).json({
+                success: true,
+                message: "Join request updated",
+                data: { request: updatedRequest }
+            });
           }
         // Create new join request
         const newRequest = await ProjectRequest.create({
@@ -165,14 +190,18 @@ const sendJoinRequest = async(req,res)=>{
             userId,
             joinMessage,
         });
-        res.status(StatusCodes.CREATED).json({ msg: 'Join request sent.', request: newRequest });
+        res.status(200).json({
+            success: true,
+            message: "Join request sent",
+            data: { request: newRequest }
+        });
       
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error sending join request', error });
+        next(error);
     }
 }
 
-const unsendJoinRequest  = async(req,res)=>{
+const unsendJoinRequest  = async(req,res, next)=>{
     try {
         const userId = req.user.id
         const projectId = req.project._id
@@ -181,22 +210,27 @@ const unsendJoinRequest  = async(req,res)=>{
         if(!removeRequest){
             throw new NotFoundError(`No project with id ${projectId}`);
         }
-        res.status(StatusCodes.OK).json({msg:"Join Request unsend successfully"})
+        res.status(200).json({
+            success: true,
+            message: "Join Request unsend successfully",
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Error unsending join request', error });
+        next(error);
     }
-   
 }
 
-const getProjectJoinRequests = async(req,res)=>{
+const getProjectJoinRequests = async(req,res, next)=>{
     const projectId = req.project._id;
     const requests = await ProjectRequest.find({projectId});
     if(!requests){
         throw new NotFoundError('There is no request for this project')
     }
-    res.status(StatusCodes.OK).json({requests})
+    res.status(200).json({
+        success: true,
+        message: "Project requests fetched successfuly",
+        data: { request: requests }
+    });
 }
-
 
 module.exports ={
     getAllProjects,
