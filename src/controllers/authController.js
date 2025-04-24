@@ -8,8 +8,9 @@ exports.signUp = async (req, res, next) => {
         const { username, email, password } = req.body;
         const user = await authService.signUp(username, email, password);
         res.status(201).json({
-            message: 'User Created Succesfully',
-            user: toUserResponseDto(user)
+            success : true,
+            message: 'User Created Successfully',
+            data: {user : toUserResponseDto(user)}
         })
     }
     catch (err) {
@@ -28,8 +29,9 @@ exports.signIn = async (req, res, next) => {
             sameSite: 'None'
         });
         res.status(200).json({
-            message: 'Authentication Succesfull',
-            user: toUserResponseDto(user)
+            success : true,
+            message: 'Authentication Successfull',
+            data: {user : toUserResponseDto(user)}
         });
     }
     catch (err) {
@@ -45,7 +47,8 @@ exports.signOut = (req, res, next) => {
         }
         res.clearCookie('token', { httpOnly: true, sameSite: 'None', secure: true });
         res.status(200).json({
-            message: 'Users Loged out Succesfully',
+            success : true,
+            message: 'Users Loged out Successfully',
         });
     }
     catch (err) {
@@ -58,8 +61,9 @@ exports.authMe = (req, res, next) => {
     try {
         const user = req.user;
         res.status(200).json({
-            message: 'Authentication Succesfull',
-            user: toUserResponseDto(user)
+            success : true,
+            message: 'Authentication Successfull',
+            data: {user : toUserResponseDto(user)}
         });
     }
     catch (err) {

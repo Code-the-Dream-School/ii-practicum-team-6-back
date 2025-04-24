@@ -18,8 +18,9 @@ exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers()
         res.status(200).json({
-            message: 'Users Fetched Succesfully',
-            users: toUsersResponseDto(users)
+            success : true,
+            message: 'Users Fetched Successfully',
+            data: {users : toUsersResponseDto(users)}
         })
     }
     catch (err) {
@@ -35,8 +36,9 @@ exports.getUserById = async (req, res, next) => {
         const user = await userService.getUserById(userId)
 
         res.status(200).json({
+            success : true,
             message: 'User Fetched Successfully',
-            user: toUserResponseDto(user)
+            data: {user : toUserResponseDto(user)}
         })
     }
     catch (err) {
@@ -46,22 +48,23 @@ exports.getUserById = async (req, res, next) => {
 }
 
 
-exports.updateMyProfile = async (req, res, next) => {
+    exports.updateMyProfile = async (req, res, next) => {
 
-    try {
-        const userId = req.user.id
-        const { username, bio, skills } = req.body
-        const user = await userService.updateMyProfile(userId, username, bio, skills)
+        try {
+            const userId = req.user.id
+            const { username, bio, skills } = req.body
+            const user = await userService.updateMyProfile(userId, username, bio, skills)
 
-        res.status(200).json({
-            message: 'User Updated Succesfully',
-            user: toUserResponseDto(user)
-        })
+            res.status(200).json({
+                success : true,
+                message: 'User Updated Successfully',
+                data: {user : toUserResponseDto(user)}
+            })
+        }
+        catch (err) {
+            next(err)
+        }
     }
-    catch (err) {
-        next(err)
-    }
-}
 
 exports.deleteMyProfile = async (req, res, next) => {
 
@@ -72,7 +75,8 @@ exports.deleteMyProfile = async (req, res, next) => {
 
         res.clearCookie('token');
         res.status(200).json({
-            message: 'User Deleted Succesfully',
+            success : true,
+            message: 'User Deleted Successfully',
         })
     }
     catch (err) {
