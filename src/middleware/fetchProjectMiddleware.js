@@ -1,4 +1,4 @@
-const Project = require('../models/Project');
+const Project = require('../models/project');
 const { NotFoundError } = require('../errors');
 
 const fetchProject = async (req, res, next) => {
