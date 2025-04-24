@@ -7,14 +7,13 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')
-const {errorHandler} = require('./middleware/erroHandlerMiddleware')
 
 
 //project router
 const projectRouter = require('./routes/projects.js')
 const skillRouter = require('./routes/skills.js')
-const notFoundMiddleware = require('./middleware/not-found.js');
-const errorHandlerMiddleware = require('./middleware/error-handler.js');
+const notFoundMiddleware = require('./middleware/notFoundMiddleware.js');
+const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware.js');
 //swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger.js');
@@ -42,7 +41,6 @@ app.use('/api/skills',skillRouter)
 
 
 //error handler
-app.use(errorHandler)
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 

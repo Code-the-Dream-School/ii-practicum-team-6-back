@@ -1,8 +1,8 @@
 const express = require('express');
-const fetchProjectMiddleware = require('../middleware/fetchProject');
-const validate = require('../middleware/projectValidate');
-const { projectCreateValidation } = require('../validators/projectCreateValidator');
-const {projectUpdateValidation} = require('../validators/projectUpdateValidator')
+const fetchProjectMiddleware = require('../middleware/fetchProjectMiddleware');
+const validate = require('../middleware/projectValidateMiddleware');
+const { projectCreateValidator } = require('../validators/projectCreateValidator');
+const {projectUpdateValidator} = require('../validators/projectUpdateValidator')
 const { authenticate } = require('../middleware/authMiddleware');
 const {
   getAllProjects,
@@ -85,7 +85,7 @@ const router = express.Router();
  */
 router.route('/')
   .get(getAllProjects)
-  .post(authenticate,validate(projectCreateValidation), createProject);
+  .post(authenticate,validate(projectCreateValidator), createProject);
 
 /**
  * @swagger
@@ -208,7 +208,7 @@ router.route('/:id')
   .all(fetchProjectMiddleware)
   .get(getProjectById)
   .delete(authenticate,deleteProject)
-  .patch(authenticate,validate(projectUpdateValidation), updateProject);
+  .patch(authenticate,validate(projectUpdateValidator), updateProject);
 
 /**
  * @swagger
