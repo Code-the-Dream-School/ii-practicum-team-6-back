@@ -40,9 +40,21 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Project'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Projects fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     projects:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -50,9 +62,12 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error getting the project"
+ *                   example: Error getting the projects
  *   post:
  *     summary: Create a new project
  *     tags: [Projects]
@@ -70,8 +85,17 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 newProject:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project created successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -79,14 +103,18 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error creating the project"
+ *                   example: Error creating the project
  */
 router.route('/')
   .get(getAllProjects)
   .post(authenticate,validate(projectCreateValidator), createProject);
 
+//**
 /**
  * @swagger
  * /projects/{id}:
@@ -102,11 +130,23 @@ router.route('/')
  *         description: Project ID
  *     responses:
  *       200:
- *         description: Project found
+ *         description: Project fetched successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Project'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -114,9 +154,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error getting the project"
+ *                   example: Error getting the project
  *   patch:
  *     summary: Update a project by ID
  *     tags: [Projects]
@@ -141,8 +184,17 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 project:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       403:
  *         description: Forbidden
  *         content:
@@ -150,9 +202,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not authorized to update this project"
+ *                   example: You are not authorized to update this project
  *       500:
  *         description: Server error
  *         content:
@@ -160,9 +215,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error updating the project"
+ *                   example: Error updating the project
  *   delete:
  *     summary: Delete a project by ID
  *     tags: [Projects]
@@ -181,8 +239,17 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 project:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       403:
  *         description: Forbidden
  *         content:
@@ -190,9 +257,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not authorized to delete this project"
+ *                   example: You are not authorized to delete this project
  *       500:
  *         description: Server error
  *         content:
@@ -200,9 +270,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error deleting the project"
+ *                   example: Error deleting the project
  */
 router.route('/:id')
   .all(fetchProjectMiddleware)
@@ -210,6 +283,7 @@ router.route('/:id')
   .delete(authenticate,deleteProject)
   .patch(authenticate,validate(projectUpdateValidator), updateProject);
 
+//**
 /**
  * @swagger
  * /projects/{id}/leave:
@@ -225,15 +299,18 @@ router.route('/:id')
  *         description: Project ID
  *     responses:
  *       200:
- *         description: Project deleted successfully
+ *         description: User has successfully left the project
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: 'User successfully left the project'
+ *                   example: User has successfully left the project
  *       400:
  *         description: User is not a team member of this project
  *         content:
@@ -241,9 +318,12 @@ router.route('/:id')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not a team member of this project"
+ *                   example: User is not a team member of this project
  *       500:
  *         description: Server error
  *         content:
@@ -251,9 +331,12 @@ router.route('/:id')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error leaving the project"
+ *                   example: Error leaving the project
  */
 router.route('/:id/leave')
   .post(authenticate,fetchProjectMiddleware, leaveProject);
