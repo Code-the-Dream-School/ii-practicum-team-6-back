@@ -1,15 +1,19 @@
 const Skill = require('../models/skill')
-const {StatusCodes} = require('http-status-codes')
+const{NotFoundError} = require('../errors/not-found')
 
 const getAllSkills = async(req,res)=>{
     try {
         const skills = await Skill.find({})
         if(skills.length == 0){
-            res.status(StatusCodes.NOT_FOUND).json({msg:'No skills found'})
+            throw new NotFoundError('No skill found')
         }
-        res.status(StatusCodes.OK).json({skills})
+        res.status(200).json({
+            success: true,
+            message: "Skills fetched successfully",
+            data: { skills }
+        });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).josn({ msg: "Error getting skills", error })
+        next(error);
     }
     
 }

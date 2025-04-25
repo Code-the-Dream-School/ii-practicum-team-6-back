@@ -40,9 +40,21 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Project'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Projects fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     projects:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -50,9 +62,12 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error getting the project"
+ *                   example: Error getting the projects
  *   post:
  *     summary: Create a new project
  *     tags: [Projects]
@@ -70,8 +85,17 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 newProject:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project created successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -79,14 +103,18 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error creating the project"
+ *                   example: Error creating the project
  */
 router.route('/')
   .get(getAllProjects)
   .post(authenticate,validate(projectCreateValidator), createProject);
 
+//**
 /**
  * @swagger
  * /projects/{id}:
@@ -102,11 +130,23 @@ router.route('/')
  *         description: Project ID
  *     responses:
  *       200:
- *         description: Project found
+ *         description: Project fetched successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Project'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       500:
  *         description: Server error
  *         content:
@@ -114,9 +154,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error getting the project"
+ *                   example: Error getting the project
  *   patch:
  *     summary: Update a project by ID
  *     tags: [Projects]
@@ -141,8 +184,17 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 project:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       403:
  *         description: Forbidden
  *         content:
@@ -150,9 +202,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not authorized to update this project"
+ *                   example: You are not authorized to update this project
  *       500:
  *         description: Server error
  *         content:
@@ -160,9 +215,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error updating the project"
+ *                   example: Error updating the project
  *   delete:
  *     summary: Delete a project by ID
  *     tags: [Projects]
@@ -181,8 +239,17 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 project:
- *                   $ref: '#/components/schemas/Project'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     project:
+ *                       $ref: '#/components/schemas/Project'
  *       403:
  *         description: Forbidden
  *         content:
@@ -190,9 +257,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not authorized to delete this project"
+ *                   example: You are not authorized to delete this project
  *       500:
  *         description: Server error
  *         content:
@@ -200,9 +270,12 @@ router.route('/')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error deleting the project"
+ *                   example: Error deleting the project
  */
 router.route('/:id')
   .all(fetchProjectMiddleware)
@@ -210,6 +283,7 @@ router.route('/:id')
   .delete(authenticate,deleteProject)
   .patch(authenticate,validate(projectUpdateValidator), updateProject);
 
+//**
 /**
  * @swagger
  * /projects/{id}/leave:
@@ -225,15 +299,18 @@ router.route('/:id')
  *         description: Project ID
  *     responses:
  *       200:
- *         description: Project deleted successfully
+ *         description: User has successfully left the project
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: 'User successfully left the project'
+ *                   example: User has successfully left the project
  *       400:
  *         description: User is not a team member of this project
  *         content:
@@ -241,9 +318,12 @@ router.route('/:id')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You are not a team member of this project"
+ *                   example: User is not a team member of this project
  *       500:
  *         description: Server error
  *         content:
@@ -251,9 +331,12 @@ router.route('/:id')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error leaving the project"
+ *                   example: Error leaving the project
  */
 router.route('/:id/leave')
   .post(authenticate,fetchProjectMiddleware, leaveProject);
@@ -266,40 +349,67 @@ router.route('/:id/leave')
 /**
  * @swagger
  * /projects/{id}/votes:
- *   post:
- *     summary: Add a vote to a project
+ *   get:
+ *     summary: Get all votes (likes) for a project
  *     tags: [Votes]
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
  *         description: Project ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               userId:
- *                 type: string
- *                 description: ID of the user voting for the project
  *     responses:
  *       200:
- *         description: Project liked successfully
+ *         description: Project likes fetched successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Project likes fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     likesCount:
+ *                       type: integer
+ *                       example: 5
+ *
+ *   post:
+ *     summary: Add a vote (like) to a project
+ *     tags: [Votes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Project ID
+ *     responses:
+ *       200:
+ *         description: Project liked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
  *                   example: Project liked
- *                 likesCount:
- *                   type: integer
- *                   example: 5
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     likesCount:
+ *                       type: integer
+ *                       example: 6
  *       400:
  *         description: User already voted for this project
  *         content:
@@ -307,49 +417,15 @@ router.route('/:id/leave')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "User already voted for this project"
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: Error adding vote
- *                 error:
- *                   type: string
- */
-
-/**
- * @swagger
- * /projects/{id}/votes:
- *   get:
- *     summary: Get all votes for a project
- *     tags: [Votes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Total votes retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 votesCount:
- *                   type: integer
- *                   example: 5
+ *                   example: User already voted for this project
+ *
  *   delete:
- *     summary: Remove a vote from a project
+ *     summary: Remove a vote (unlike) from a project
  *     tags: [Votes]
  *     parameters:
  *       - in: path
@@ -360,18 +436,24 @@ router.route('/:id/leave')
  *         description: Project ID
  *     responses:
  *       200:
- *         description: Vote removed successfully
+ *         description: Project unvoted
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: "Project unvoted"
- *                 likesCount:
- *                   type: integer
- *                   example: 4
+ *                   example: Project unvoted
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     likesCount:
+ *                       type: integer
+ *                       example: 4
  *       400:
  *         description: User has not voted for this project
  *         content:
@@ -379,9 +461,12 @@ router.route('/:id/leave')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "You have not liked this project"
+ *                   example: You have not liked this project
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
@@ -390,7 +475,7 @@ router.route('/:id/votes')
   .delete(authenticate,removeVote);
 
 /**
- /**
+/**
  * @swagger
  * /projects/{id}/join-requests:
  *   post:
@@ -424,11 +509,17 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: "Join request sent."
- *                 request:
- *                   $ref: '#/components/schemas/ProjectRequest'
+ *                   example: Join request sent
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     request:
+ *                       $ref: '#/components/schemas/ProjectRequest'
  *       200:
  *         description: Join request already exists and was updated
  *         content:
@@ -436,11 +527,17 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: "Join request updated."
- *                 request:
- *                   $ref: '#/components/schemas/ProjectRequest'
+ *                   example: Join request updated
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     request:
+ *                       $ref: '#/components/schemas/ProjectRequest'
  *       400:
  *         description: Bad request — missing fields or invalid operation
  *         content:
@@ -448,9 +545,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "User ID and join message are required"
+ *                   example: User ID and join message are required
  *       500:
  *         description: Server error while sending join request
  *         content:
@@ -458,9 +558,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error sending join request"
+ *                   example: Error sending join request
  *
  *   get:
  *     summary: Get all join requests for a project
@@ -480,10 +583,19 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 requests:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/ProjectRequest'
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Join requests fetched successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     requests:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ProjectRequest'
  *       404:
  *         description: No join requests found for this project
  *         content:
@@ -491,9 +603,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "There is no request for this project"
+ *                   example: There is no request for this project
  *       500:
  *         description: Server error while retrieving join requests
  *         content:
@@ -501,10 +616,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error retrieving join requests"
- *
+ *                   example: Error retrieving join requests
  *
  *   delete:
  *     summary: Unsend a join request for a project
@@ -534,9 +651,15 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
  *                   type: string
- *                   example: "Join Request unsend successfully"
+ *                   example: Join request unsent successfully
+ *                 data:
+ *                   type: object
+ *                   example: {}
  *       404:
  *         description: No join request found for this project and user
  *         content:
@@ -544,9 +667,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "No project with id 660b01e0cd3f4a3fb40aa67e"
+ *                   example: No request found for project with id 660b01e0cd3f4a3fb40aa67e
  *       500:
  *         description: Server error while unsending join request
  *         content:
@@ -554,9 +680,12 @@ router.route('/:id/votes')
  *             schema:
  *               type: object
  *               properties:
- *                 msg:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   example: "Error unsending join request"
+ *                   example: Error unsending join request
  */
 
 router.route('/:id/join-requests')

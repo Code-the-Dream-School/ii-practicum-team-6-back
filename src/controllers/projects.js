@@ -208,7 +208,7 @@ const unsendJoinRequest  = async(req,res, next)=>{
 
         const removeRequest = await ProjectRequest.findOneAndDelete({projectId,userId})
         if(!removeRequest){
-            throw new NotFoundError(`No project with id ${projectId}`);
+            throw new NotFoundError(`No request found for project with id ${projectId}`);
         }
         res.status(200).json({
             success: true,
