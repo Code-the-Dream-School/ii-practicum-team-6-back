@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const projectCreateValidation = Joi.object({
+const projectCreateValidator= Joi.object({
   title: Joi.string().trim().max(50).required(),
   description: Joi.string().trim().max(500).required(),
   reqSpots: Joi.number().min(1).required(),
@@ -21,4 +21,4 @@ const projectCreateValidation = Joi.object({
     .default([])
 });
 
-module.exports = {projectCreateValidation}
+module.exports = {projectCreateValidator}
