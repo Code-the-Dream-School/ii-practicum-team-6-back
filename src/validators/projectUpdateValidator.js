@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const projectUpdateValidation = Joi.object({
+const projectUpdateValidator = Joi.object({
   title: Joi.string().trim().max(50),
   description: Joi.string().trim().max(500),
   reqSpots: Joi.number().min(1),
@@ -19,4 +19,4 @@ const projectUpdateValidation = Joi.object({
     .items(Joi.string().hex().length(24))
 }).min(1); 
 
-module.exports = { projectUpdateValidation };
+module.exports = { projectUpdateValidator };
