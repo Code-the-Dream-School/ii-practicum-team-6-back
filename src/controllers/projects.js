@@ -13,10 +13,20 @@ const getAllProjects = async(req,res, next)=>{
             sortOption = {createdAt :-1}
         }
         const projects = await Project.find({}).sort(sortOption)
+        const numberOfProjects = projects.length;
+        const projectWithlikesCount = projects.map(project=>{
+            return{
+                ...project.toObject(),
+                likesCount : project.likes.length // added likesCount field
+            }
+        })
         res.status(200).json({
             success: true,
             message: "Projects fetched successfully",
-            data: { projects }
+            data: { 
+                projects: projectWithlikesCount ,
+                numberOfProjects
+             }
         });
     } catch (error) {
         next(error);
@@ -49,10 +59,14 @@ const createProject = async(req,res, next)=>{
 const getProjectById = async(req,res, next)=>{
     try {
         const project = req.project; //comes from middleware
+        const projectWithlikesCount = {
+            ...project.toObject(),
+            likesCount : project.likes.length
+        }
         res.status(200).json({
             success: true,
             message: "Project fetched successfully",
-            data: { project: project }
+            data: { project: projectWithlikesCount }
         });
     } catch (error) {
         next(error);
