@@ -10,6 +10,19 @@ const { validateRequest } = require('../middleware/projectRequestValidate')
  * /users:
  *   get:
  *     summary: Get all users
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of users per page
  *     tags:
  *       - User
  *     security:
@@ -25,10 +38,22 @@ const { validateRequest } = require('../middleware/projectRequestValidate')
  *                 message:
  *                   type: string
  *                   example: Users Fetched Successfully
- *                 users:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/User'
+ *                 data :
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     totalUsers:
+ *                       type: integer
+ *                       example: 70
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     page:
+ *                       type: integer
+ *                       example: 1
  *       401:
  *         description: Not authorized
  *         content:
@@ -223,7 +248,7 @@ router.delete('/me', authenticate, userController.deleteMyProfile)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User Updated Succesfully
+ *                   example: User Updated Successfully
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:
