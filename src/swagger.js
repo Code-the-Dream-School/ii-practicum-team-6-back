@@ -113,7 +113,7 @@ const options = {
 
     },
   },
-  apis: ['./src/routes/*.js'], // path to your route files with swagger annotations
+  apis:  [path.join(__dirname, './routes/*.js')], // path to your route files with swagger annotations
 };
 
 console.log('Swagger API path:', './src/routes/*.js');
