@@ -14,7 +14,7 @@ const getAllProjects = async(req,res, next)=>{
         }
         const projects = await Project.find({}).sort(sortOption)
         const numberOfProjects = projects.length;
-        const projectLikesCount = projects.map(project=>{
+        const projectWithlikesCount = projects.map(project=>{
             return{
                 ...project.toObject(),
                 likesCount : project.likes.length // added likesCount field
@@ -24,7 +24,7 @@ const getAllProjects = async(req,res, next)=>{
             success: true,
             message: "Projects fetched successfully",
             data: { 
-                projects: projectLikesCount ,
+                projects: projectWithlikesCount ,
                 numberOfProjects
              }
         });
