@@ -117,6 +117,7 @@ const options = {
 };
 
 console.log('Swagger API path:', './src/routes/*.js');
+console.log('Current working directory:', process.cwd());
 
 
 const swaggerSpec = swaggerJSDoc(options);
