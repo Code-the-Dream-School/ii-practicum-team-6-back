@@ -16,11 +16,19 @@ const { toUsersResponseDto, toUserResponseDto } = require('../dtos/user.dto')
 exports.getAllUsers = async (req, res, next) => {
 
     try {
-        const users = await userService.getAllUsers()
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        console.log(page, limit)
+        const {users, total} = await userService.getAllUsers(page, limit)
         res.status(200).json({
-            success : true,
+            success: true,
             message: 'Users Fetched Successfully',
-            data: {users : toUsersResponseDto(users)}
+            data: {
+                users: toUsersResponseDto(users),
+                totalUsers: total,
+                limit : limit,
+                page: page,
+            }
         })
     }
     catch (err) {
@@ -36,9 +44,9 @@ exports.getUserById = async (req, res, next) => {
         const user = await userService.getUserById(userId)
 
         res.status(200).json({
-            success : true,
+            success: true,
             message: 'User Fetched Successfully',
-            data: {user : toUserResponseDto(user)}
+            data: { user: toUserResponseDto(user) }
         })
     }
     catch (err) {
@@ -48,34 +56,34 @@ exports.getUserById = async (req, res, next) => {
 }
 
 
-    exports.updateMyProfile = async (req, res, next) => {
+exports.updateMyProfile = async (req, res, next) => {
 
-        try {
-            const userId = req.user.id
-            const { username, bio, skills } = req.body
-            const user = await userService.updateMyProfile(userId, username, bio, skills)
+    try {
+        const userId = req.user.id
+        const { username, bio, skills } = req.body
+        const user = await userService.updateMyProfile(userId, username, bio, skills)
 
-            res.status(200).json({
-                success : true,
-                message: 'User Updated Successfully',
-                data: {user : toUserResponseDto(user)}
-            })
-        }
-        catch (err) {
-            next(err)
-        }
+        res.status(200).json({
+            success: true,
+            message: 'User Updated Successfully',
+            data: { user: toUserResponseDto(user) }
+        })
     }
+    catch (err) {
+        next(err)
+    }
+}
 
 exports.deleteMyProfile = async (req, res, next) => {
 
     try {
         const userId = req.user.id
-        
+
         await userService.deleteMyProfile(userId)
 
         res.clearCookie('token');
         res.status(200).json({
-            success : true,
+            success: true,
             message: 'User Deleted Successfully',
         })
     }
