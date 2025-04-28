@@ -10,14 +10,26 @@ const UnauthenticatedError = require('../errors/unauthenticated')
 const NotFoundError = require('../errors/not-found')
 const userIdSchema = require('../validators/userIdValidator')
 
-exports.getAllUsers = async () => {
+exports.getAllUsers = async (page, limit) => {
 
-    const users = await User.find().populate('skills', 'name')
+    const startIndex = (page - 1) * limit;
 
-    if (!users) {
+    const users = await User.find().populate('skills', 'name').skip(startIndex).limit(limit);
+    const total = await User.countDocuments();
+
+    const pages = Math.ceil(total / limit);
+
+    console.log(total)
+
+
+    if (page > pages) {
+        throw new BadRequestError('Page not found');
+    }
+    if (!users || users.length < 1) {
         throw new BadRequestError('Error fetching Users')
     }
-    return users
+
+    return { users, total }
 }
 
 exports.getUserById = async (userId) => {
@@ -25,7 +37,7 @@ exports.getUserById = async (userId) => {
     const user = await User.findById(userId).populate('skills', 'name');
 
     if (!user) {
-        throw new BadRequestError('Error fetching User')
+        throw new BadRequestError('Error fetching User');
     };
 
     return user;
@@ -60,9 +72,9 @@ exports.updateMyProfile = async (userId, username, bio, skills) => {
 
 exports.deleteMyProfile = async (userId) => {
 
-        const deletedUser = await User.findByIdAndDelete(userId)
-        if (!deletedUser) {
-            throw new NotFoundError('User not found')
-        }
+    const deletedUser = await User.findByIdAndDelete(userId)
+    if (!deletedUser) {
+        throw new NotFoundError('User not found')
+    }
 }
 
