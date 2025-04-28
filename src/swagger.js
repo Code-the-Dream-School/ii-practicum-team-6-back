@@ -11,7 +11,10 @@ const options = {
     },
     servers: [
       {
-        url: `${process.env.CLIENT_URL}/api` || 'http://localhost:3000/api'  ,
+        url: `${process.env.CLIENT_URL}/api`,
+      },
+      {
+        url: 'http://localhost:3000/api',
       },
     ],
     tags: [
@@ -113,12 +116,8 @@ const options = {
 
     },
   },
-  apis:  [path.join(__dirname, './routes/*.js')], // path to your route files with swagger annotations
+  apis: [path.join(__dirname, './routes/*.js')], // path to your route files with swagger annotations
 };
-
-console.log('Swagger API path:', './src/routes/*.js');
-console.log('Current working directory:', process.cwd());
-
 
 const swaggerSpec = swaggerJSDoc(options);
 
