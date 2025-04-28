@@ -4,7 +4,15 @@ const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
 
 const getAllProjects = async(req,res, next)=>{
     try {
-        const projects = await Project.find({})
+        const {sort}= req.query;
+        let sortOption = {};
+        if(sort == 'createdAt-asc'){
+            sortOption = {createdAt : 1}
+        }
+        else if(sort == 'createdAt-desc'){
+            sortOption = {createdAt :-1}
+        }
+        const projects = await Project.find({}).sort(sortOption)
         res.status(200).json({
             success: true,
             message: "Projects fetched successfully",
