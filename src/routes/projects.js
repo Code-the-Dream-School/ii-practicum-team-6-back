@@ -55,6 +55,10 @@ const router = express.Router();
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/Project'
+ *                     numberOfProjects:
+ *                       type: integer
+ *                       example: 10
+ *
  *       500:
  *         description: Server error
  *         content:
@@ -68,6 +72,8 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: Error getting the projects
+ *
+ * 
  *   post:
  *     summary: Create a new project
  *     tags: [Projects]
@@ -76,7 +82,8 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Project'
+ *             $ref: '#/components/schemas/ProjectBody'  
+ *
  *     responses:
  *       201:
  *         description: Project created successfully
@@ -114,8 +121,7 @@ router.route('/')
   .get(getAllProjects)
   .post(authenticate,validate(projectCreateValidator), createProject);
 
-//**
-/**
+ /**
  * @swagger
  * /projects/{id}:
  *   get:
@@ -146,7 +152,14 @@ router.route('/')
  *                   type: object
  *                   properties:
  *                     project:
- *                       $ref: '#/components/schemas/Project'
+ *                       allOf:
+ *                         - $ref: '#/components/schemas/Project'
+ *                         - type: object
+ *                           properties:
+ *                             likesCount:
+ *                               type: integer
+ *                               description: Number of likes on the project
+ *                               example: 1
  *       500:
  *         description: Server error
  *         content:
@@ -175,7 +188,7 @@ router.route('/')
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Project'
+ *             $ref: '#/components/schemas/ProjectBody' 
  *     responses:
  *       200:
  *         description: Project updated successfully
