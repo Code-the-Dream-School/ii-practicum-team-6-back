@@ -16,8 +16,10 @@ const getAllProjects = async(req,res, next)=>{
         const numberOfProjects = projects.length;
         const projectWithlikesCount = projects.map(project=>{
             return{
-                ...project.toObject(),
-                likesCount : project.likes.length // added likesCount field
+                ...project.toObject({ virtuals: false }),
+                likesCount : project.likes.length,
+                teamNum: project.teamMembers.length,
+                availableSpots: project.reqSpots - project.teamMembers.length,
             }
         })
         res.status(200).json({
@@ -60,8 +62,10 @@ const getProjectById = async(req,res, next)=>{
     try {
         const project = req.project; //comes from middleware
         const projectWithlikesCount = {
-            ...project.toObject(),
-            likesCount : project.likes.length
+            ...project.toObject({virtuals:false}), //this does not add additional id field
+            likesCount : project.likes.length,
+            teamNum: project.teamMembers.length,
+            availableSpots: project.reqSpots - project.teamMembers.length,
         }
         res.status(200).json({
             success: true,
