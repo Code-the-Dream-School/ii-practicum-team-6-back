@@ -4,6 +4,10 @@ const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
 
 const getAllProjects = async(req,res, next)=>{
     try {
+        const limit=  Number(req.query.limit) || 10
+        const page = Number(req.query.page) || 1
+        const skip = (page - 1) * limit;
+        
         const {sort}= req.query;
         let sortOption = {};
         if(sort == 'createdAt-asc'){
@@ -12,8 +16,13 @@ const getAllProjects = async(req,res, next)=>{
         else if(sort == 'createdAt-desc'){
             sortOption = {createdAt :-1}
         }
-        const projects = await Project.find({}).sort(sortOption)
-        const numberOfProjects = projects.length;
+        const projects = await Project.find({})
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit)
+
+        const numberOfProjects = await Project.countDocuments();
+
         const projectWithlikesCount = projects.map(project=>{
             return{
                 ...project.toObject({ virtuals: false }),
@@ -27,7 +36,9 @@ const getAllProjects = async(req,res, next)=>{
             message: "Projects fetched successfully",
             data: { 
                 projects: projectWithlikesCount ,
-                numberOfProjects
+                numberOfProjects,
+                currentPage: page,
+                totalPages: Math.ceil(numberOfProjects / limit)
              }
         });
     } catch (error) {
