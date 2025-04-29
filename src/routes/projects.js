@@ -31,9 +31,29 @@ const router = express.Router();
 /**
  * @swagger
  * /projects:
- *   get:
+  *   get:
  *     summary: Get all projects
  *     tags: [Projects]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: Number of projects per page (default is 10)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         required: false
+ *         description: Page number to retrieve (default is 1)
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [createdAt-desc, mostLiked]
+ *         required: false
+ *         description: Sort by newest (createdAt-desc) or most liked (mostLiked)
  *     responses:
  *       200:
  *         description: List of all projects
@@ -44,10 +64,8 @@ const router = express.Router();
  *               properties:
  *                 success:
  *                   type: boolean
- *                   example: true
  *                 message:
  *                   type: string
- *                   example: Projects fetched successfully
  *                 data:
  *                   type: object
  *                   properties:
@@ -57,8 +75,13 @@ const router = express.Router();
  *                         $ref: '#/components/schemas/Project'
  *                     numberOfProjects:
  *                       type: integer
- *                       example: 10
- *
+ *                       example: 20
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 2
  *       500:
  *         description: Server error
  *         content:
