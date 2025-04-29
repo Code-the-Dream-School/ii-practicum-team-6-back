@@ -103,7 +103,7 @@ const deleteProject = async(req,res, next)=>{
         if (req.project.createdBy.toString() !== createdBy) {
             throw new ForbiddenError('You are not authorized to delete this project')
         }
-        const deletedProject=  await req.project.deleteOne();
+        const deletedProject=  await req.prDoject.deleteOne();
         res.status(200).json({
             success: true,
             message: "Project deleted successfully",

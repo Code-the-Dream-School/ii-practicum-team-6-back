@@ -34,9 +34,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/projects/', projectRoutes)
+app.use('/api/projects', projectRoutes)
 app.use('/api/skills', skillRoutes)
-app.use('/api/comments', commentRoutes)
+// app.use('/api/comments', commentRoutes)
 
 
 //error handler

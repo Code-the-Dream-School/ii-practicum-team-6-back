@@ -9,7 +9,7 @@ const fetchProject = async (req, res, next) => {
         throw new NotFoundError(`No project with id ${projectId}`);
       }
       req.project = project; // attach it to req
-      next();
+      next()
     } catch (err) {
       next(err);
     }
