@@ -51,7 +51,7 @@ const router = express.Router();
  *         name: sort
  *         schema:
  *           type: string
- *           enum: [createdAt-desc, mostLiked]
+ *           enum: [createdAt-desc,mostLiked]
  *         required: false
  *         description: Sort by newest (createdAt-desc) or most liked (mostLiked)
  *     responses:
