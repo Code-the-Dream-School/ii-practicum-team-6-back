@@ -25,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'))
-app.use(favicon(__dirname + '/public/favicon.ico'));
 
 //swager
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
