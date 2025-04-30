@@ -1,52 +1,65 @@
 const Project = require('../models/project')
 const ProjectRequest = require('../models/projectRequest')
-const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
+const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors')
+const { getAllCommentsByTheProjectId } = require('../services/commentServices')
 
 const getAllProjects = async(req,res, next)=>{
     try {
-        const {sort}= req.query;
-        let sortOption = {};
-        if(sort == 'createdAt-asc'){
-            sortOption = {createdAt : 1}
+      const limit = Number(req.query.limit) || 10;
+      const page = Number(req.query.page) || 1;
+      const skip = (page - 1) * limit;
+  
+      const { sort } = req.query;
+      const projects = await Project.find({})
+        .skip(skip)
+        .limit(limit)
+        .lean(); // lean returns plain js objects 
+
+       //in order to add likesCount filed we need to have a js object 
+      const projectsWithLikes = projects.map(project => ({
+        ...project,
+        likesCount: project.likes?.length || 0,
+      }));
+  
+      let sortedProjects = projectsWithLikes;
+
+        if (sort === 'mostLiked') {
+        sortedProjects = projectsWithLikes.sort((a, b) => b.likesCount - a.likesCount);
+        } else if (sort === 'createdAt-desc') {
+        sortedProjects = projectsWithLikes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        } else {
+        sortedProjects = projectsWithLikes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         }
-        else if(sort == 'createdAt-desc'){
-            sortOption = {createdAt :-1}
-        }
-        const projects = await Project.find({}).sort(sortOption)
-        const numberOfProjects = projects.length;
-        const projectWithlikesCount = projects.map(project=>{
-            return{
-                ...project.toObject({ virtuals: false }),
-                likesCount : project.likes.length,
-                teamNum: project.teamMembers.length,
-                availableSpots: project.reqSpots - project.teamMembers.length,
-            }
-        })
-        res.status(200).json({
-            success: true,
-            message: "Projects fetched successfully",
-            data: { 
-                projects: projectWithlikesCount ,
-                numberOfProjects
-             }
-        });
+  
+      const numberOfProjects = await Project.countDocuments();
+  
+      res.status(200).json({
+        success: true,
+        message: 'Projects fetched successfully',
+        data: {
+          projects: sortedProjects,
+          numberOfProjects,
+          currentPage: page,
+          totalPages: Math.ceil(numberOfProjects / limit),
+        },
+      });
     } catch (error) {
         next(error);
     }
 }
 
-const createProject = async(req,res, next)=>{
+const createProject = async (req, res, next) => {
     try {
-        const{title, description, reqSpots, reqSkills }= req.body
+        const { title, description, reqSpots, reqSkills } = req.body
         const createdBy = req.user.id
-        
+
         const newProject = await Project.create({
             title,
             description,
-            createdBy, 
+            createdBy,
             reqSpots,
             reqSkills,
-            teamMembers:[{user:createdBy,role:'admin'}]
+            teamMembers: [{ user: createdBy, role: 'admin' }]
         })
         res.status(201).json({
             success: true,
@@ -58,19 +71,23 @@ const createProject = async(req,res, next)=>{
     }
 }
 
-const getProjectById = async(req,res, next)=>{
+const getProjectById = async (req, res, next) => {
     try {
         const project = req.project; //comes from middleware
+        const comments = await getAllCommentsByTheProjectId(project._id)
         const projectWithlikesCount = {
-            ...project.toObject({virtuals:false}), //this does not add additional id field
-            likesCount : project.likes.length,
+            ...project.toObject({ virtuals: false }), //this does not add additional id field
+            likesCount: project.likes.length,
+            comments,
             teamNum: project.teamMembers.length,
             availableSpots: project.reqSpots - project.teamMembers.length,
         }
         res.status(200).json({
             success: true,
             message: "Project fetched successfully",
-            data: { project: projectWithlikesCount }
+            data: {
+                project: projectWithlikesCount,
+            }
         });
     } catch (error) {
         next(error);
@@ -94,16 +111,16 @@ const updateProject = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-  };
+};
 
-const deleteProject = async(req,res, next)=>{
+const deleteProject = async (req, res, next) => {
     try {
         const createdBy = req.user.id
-         // Ensure that the project belongs to the user trying to delete it
+        // Ensure that the project belongs to the user trying to delete it
         if (req.project.createdBy.toString() !== createdBy) {
             throw new ForbiddenError('You are not authorized to delete this project')
         }
-        const deletedProject=  await req.prDoject.deleteOne();
+        const deletedProject = await req.prDoject.deleteOne();
         res.status(200).json({
             success: true,
             message: "Project deleted successfully",
@@ -114,12 +131,12 @@ const deleteProject = async(req,res, next)=>{
     }
 }
 
-const leaveProject = async(req,res, next)=>{
+const leaveProject = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const project = req.project;
         //check if user is a member
-        const isMember = project.teamMembers.some(member=> member.user.toString() === userId)
+        const isMember = project.teamMembers.some(member => member.user.toString() === userId)
 
         if (!isMember) {
             throw new BadRequestError('User is not a team member of this project');
@@ -138,12 +155,12 @@ const leaveProject = async(req,res, next)=>{
     }
 }
 
-const addVote = async(req,res, next)=>{
+const addVote = async (req, res, next) => {
     const userId = req.user.id;
     const project = req.project;
     //check if user already liked a project
     const alreadyVote = project.likes.includes(userId)
-    if(alreadyVote){
+    if (alreadyVote) {
         throw new BadRequestError('User already voted for this project')
     }
     project.likes.push(userId);
@@ -155,7 +172,7 @@ const addVote = async(req,res, next)=>{
     });
 }
 
-const getAllVotes= async(req,res, next)=>{
+const getAllVotes = async (req, res, next) => {
     const project = req.project;
     const votesCount = project.likes.length;
     res.status(200).json({
@@ -165,7 +182,7 @@ const getAllVotes= async(req,res, next)=>{
     });
 }
 
-const removeVote = async(req,res, next)=>{
+const removeVote = async (req, res, next) => {
     const userId = req.user.id;
     const project = req.project;
     const index = project.likes.indexOf(userId);
@@ -182,34 +199,34 @@ const removeVote = async(req,res, next)=>{
 }
 
 // ============ PROJECT REQUEST  =============
-const sendJoinRequest = async(req,res, next)=>{
+const sendJoinRequest = async (req, res, next) => {
     try {
         const userId = req.user.id
-        const {joinMessage} = req.body;
+        const { joinMessage } = req.body;
         const project = req.project;
         const projectId = project._id;
-        if(!userId || !joinMessage){
+        if (!userId || !joinMessage) {
             throw new BadRequestError('User ID and join message are required')
         }
         //check if user is a member
         const isMember = project.teamMembers.some(member => member.user.toString() === userId)
-       
+
         if (isMember) {
             throw new BadRequestError('User is already a project member.');
-          }
+        }
         //check if a request is already exists
         const updatedRequest = await ProjectRequest.findOneAndUpdate(
             { projectId, userId },
             { status: "pending", joinMessage },
             { new: true }
-          );
-          if(updatedRequest){
+        );
+        if (updatedRequest) {
             return res.status(200).json({
                 success: true,
                 message: "Join request updated",
                 data: { request: updatedRequest }
             });
-          }
+        }
         // Create new join request
         const newRequest = await ProjectRequest.create({
             projectId,
@@ -221,19 +238,19 @@ const sendJoinRequest = async(req,res, next)=>{
             message: "Join request sent",
             data: { request: newRequest }
         });
-      
+
     } catch (error) {
         next(error);
     }
 }
 
-const unsendJoinRequest  = async(req,res, next)=>{
+const unsendJoinRequest = async (req, res, next) => {
     try {
         const userId = req.user.id
         const projectId = req.project._id
 
-        const removeRequest = await ProjectRequest.findOneAndDelete({projectId,userId})
-        if(!removeRequest){
+        const removeRequest = await ProjectRequest.findOneAndDelete({ projectId, userId })
+        if (!removeRequest) {
             throw new NotFoundError(`No request found for project with id ${projectId}`);
         }
         res.status(200).json({
@@ -245,10 +262,10 @@ const unsendJoinRequest  = async(req,res, next)=>{
     }
 }
 
-const getProjectJoinRequests = async(req,res, next)=>{
+const getProjectJoinRequests = async (req, res, next) => {
     const projectId = req.project._id;
-    const requests = await ProjectRequest.find({projectId});
-    if(!requests){
+    const requests = await ProjectRequest.find({ projectId });
+    if (!requests) {
         throw new NotFoundError('There is no request for this project')
     }
     res.status(200).json({
@@ -258,7 +275,7 @@ const getProjectJoinRequests = async(req,res, next)=>{
     });
 }
 
-module.exports ={
+module.exports = {
     getAllProjects,
     createProject,
     getProjectById,

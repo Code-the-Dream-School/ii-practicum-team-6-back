@@ -3,6 +3,7 @@ const { NotFoundError } = require('../errors');
 
 const fetchProject = async (req, res, next) => {
     const { id: projectId } = req.params;
+
     try {
       const project = await Project.findById(projectId);
       if (!project) {
