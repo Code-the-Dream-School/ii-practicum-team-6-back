@@ -11,6 +11,7 @@ const loginSchema = Joi.object({
         .max(15)
         .pattern(new RegExp('^[a-zA-Z0-9]+$'))
         .required(),
+    rememberMe: Joi.boolean().default(false)
 });
 
 module.exports = loginSchema;

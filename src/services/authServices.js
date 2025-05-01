@@ -28,9 +28,9 @@ exports.signUp = async (username, email, password) => {
     return user;
 }
 
-exports.signIn = async (email, password) => {
+exports.signIn = async (email, password, rememberMe) => {
+    
     const user = await User.findOne({ email: email }).populate('skills', 'name');
-    console.log(user)
 
     if (!user) {
         throw new UnauthenticatedError('Authentication failed. User not found');
@@ -39,7 +39,7 @@ exports.signIn = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch) {
-        const token = jwt.sign({ user: toUserResponseDto(user) }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ user: toUserResponseDto(user) }, process.env.JWT_SECRET, rememberMe ? { expiresIn: '30d' } : { expiresIn: '1h' });
         return { token, user };
     }
     else {
