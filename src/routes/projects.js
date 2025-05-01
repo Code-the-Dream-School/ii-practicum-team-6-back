@@ -3,6 +3,7 @@ const fetchProjectMiddleware = require('../middleware/fetchProjectMiddleware');
 const validate = require('../middleware/projectValidateMiddleware');
 const { projectCreateValidator } = require('../validators/projectCreateValidator');
 const {projectUpdateValidator} = require('../validators/projectUpdateValidator')
+const commentRoutes = require('./comments')
 const { authenticate } = require('../middleware/authMiddleware');
 const {
   getAllProjects,
@@ -292,7 +293,7 @@ router.route('/')
  */
 router.route('/:id')
   .all(fetchProjectMiddleware)
-  .get(getProjectById)
+  .get(authenticate,getProjectById)
   .delete(authenticate,deleteProject)
   .patch(authenticate,validate(projectUpdateValidator), updateProject);
 
@@ -706,4 +707,6 @@ router.route('/:id/join-requests')
   .post(authenticate,sendJoinRequest)
   .get(getProjectJoinRequests)
   .delete(authenticate,unsendJoinRequest);
+
+router.use('/:projectId/comments', commentRoutes);
 module.exports = router;

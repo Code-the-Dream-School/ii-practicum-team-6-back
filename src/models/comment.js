@@ -29,11 +29,11 @@ const commentSchema = new Schema(
             ref: "Comment",
             default: null
         },
-        replies: {
-            type: [Schema.Types.ObjectId],
-            ref: "Comment",
-            default: []
-        },
+        // replies: {
+        //     type: [Schema.Types.ObjectId],
+        //     ref: "Comment",
+        //     default: []
+        // },
 
 
     },
