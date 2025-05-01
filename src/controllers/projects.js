@@ -5,44 +5,48 @@ const { getAllCommentsByTheProjectId } = require('../services/commentServices')
 
 const getAllProjects = async (req, res, next) => {
     try {
-      const limit = Number(req.query.limit) || 10;
-      const page = Number(req.query.page) || 1;
-      const skip = (page - 1) * limit;
-  
-      const { sort } = req.query;
-      const projects = await Project.find({})
-        .skip(skip)
-        .limit(limit)
-        .lean(); // lean returns plain js objects 
-
-       //in order to add likesCount filed we need to have a js object 
-      const projectsWithLikes = projects.map(project => ({
-        ...project,
-        likesCount: project.likes?.length || 0,
-      }));
-  
-      let sortedProjects = projectsWithLikes;
-
-        if (sort === 'mostLiked') {
-        sortedProjects = projectsWithLikes.sort((a, b) => b.likesCount - a.likesCount);
-        } else if (sort === 'createdAt-desc') {
-        sortedProjects = projectsWithLikes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        } else {
-        sortedProjects = projectsWithLikes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        const limit = Number(req.query.limit) || 10;
+        const page = Number(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+    
+        const { sort,search } = req.query;
+        let filter = {}
+        if(search){
+            filter = { $text: { $search: search } }
         }
+        const projects = await Project.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .lean(); // lean returns plain js objects 
+
+        //in order to add likesCount filed we need to have a js object 
+        const projectsWithLikes = projects.map(project => ({
+            ...project,
+            likesCount: project.likes?.length || 0,
+        }));
   
-      const numberOfProjects = await Project.countDocuments();
+        let sortedProjects = projectsWithLikes;
+
+            if (sort === 'mostLiked') {
+            sortedProjects = projectsWithLikes.sort((a, b) => b.likesCount - a.likesCount);
+            } else if (sort === 'createdAt-desc') {
+            sortedProjects = projectsWithLikes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            } else {
+            sortedProjects = projectsWithLikes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            }
   
-      res.status(200).json({
-        success: true,
-        message: 'Projects fetched successfully',
-        data: {
-          projects: sortedProjects,
-          numberOfProjects,
-          currentPage: page,
-          totalPages: Math.ceil(numberOfProjects / limit),
-        },
-      });
+        const numberOfProjects = await Project.countDocuments();
+  
+        res.status(200).json({
+            success: true,
+            message: 'Projects fetched successfully',
+            data: {
+            projects: sortedProjects,
+            numberOfProjects,
+            currentPage: page,
+            totalPages: Math.ceil(numberOfProjects / limit),
+            },
+        });
     } catch (error) {
       next(error);
     }

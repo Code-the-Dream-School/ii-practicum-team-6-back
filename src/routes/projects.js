@@ -31,34 +31,73 @@ const router = express.Router();
 
 /**
  * @swagger
- * /projects:
- *   get:
- *     summary: Get all projects
- *     tags: [Projects]
- *     responses:
- *       200:
- *         description: List of all projects
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Projects fetched successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     projects:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Project'
- *                     numberOfProjects:
- *                       type: integer
- *                       example: 10
+* /projects:
+*   get:
+*     summary: Get all projects
+*     tags: [Projects]
+*     description: |
+*       Example request:
+*       GET /projects?limit=5&page=1&sort=mostLiked&search=collaboration
+*     parameters:
+*       - in: query
+*         name: limit
+*         schema:
+*           type: integer
+*         required: false
+*         description: Number of projects per page (default is 10)
+*         example: 5
+*       - in: query
+*         name: page
+*         schema:
+*           type: integer
+*         required: false
+*         description: Page number to retrieve (default is 1)
+*         example: 1
+*       - in: query
+*         name: sort
+*         schema:
+*           type: string
+*           enum: [createdAt-desc, mostLiked]
+*         required: false
+*         description: Sort by newest (createdAt-desc) or most liked (mostLiked)
+*         example: mostLiked
+*       - in: query
+*         name: search
+*         schema:
+*           type: string
+*         required: false
+*         description: Keyword to search in title or description
+*         example: collaboration
+*     responses:
+*       200:
+*         description: List of all projects
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Projects fetched successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     projects:
+*                       type: array
+*                       items:
+*                         $ref: '#/components/schemas/Project'
+*                     numberOfProjects:
+*                       type: integer
+*                       example: 20
+*                     currentPage:
+*                       type: integer
+*                       example: 1
+*                     totalPages:
+*                       type: integer
+*                       example: 2
  *
  *       500:
  *         description: Server error
