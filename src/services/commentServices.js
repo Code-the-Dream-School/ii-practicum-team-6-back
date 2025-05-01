@@ -1,6 +1,4 @@
 const BadRequestError = require('../errors/bad-request')
-const UnauthenticatedError = require('../errors/unauthenticated')
-const NotFoundError = require('../errors/not-found')
 const buildCommentTree = require('../utils/buildCommentTree')
 const Comment = require('../models/comment')
 

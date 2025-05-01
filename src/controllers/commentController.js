@@ -1,10 +1,5 @@
-const BadRequestError = require('../errors/bad-request')
-const authService = require('../services/authServices')
-const { toUserResponseDto } = require('../dtos/user.dto')
-const Comment = require('../models/comment')
-const buildCommentTree = require('../utils/buildCommentTree')
 const { getAllCommentsByTheProjectId, sendCommentByProjectId } = require('../services/commentServices')
-
+const {toCommentResponseDto,toCommentsResponseDto} = require('../dtos/comment.dto')
 
 
 exports.getAllCommentsByTheProjectId = async (req, res, next) => {
@@ -17,7 +12,7 @@ exports.getAllCommentsByTheProjectId = async (req, res, next) => {
             success: true,
             message: 'Comments Fetched Successfully',
             data: {
-                comments: comments,
+                comments: toCommentsResponseDto(comments),
                 total: comments.length
             }
         })
@@ -32,7 +27,6 @@ exports.sendCommentByProjectId = async (req, res, next) => {
     try {
         const projectId = req.params.projectId
         const { text, parentCommentId } = req.body;
-        console.log(parentCommentId)
         const userId = req.user.id
         const comment = await sendCommentByProjectId(projectId , text, parentCommentId, userId)
       
@@ -40,7 +34,7 @@ exports.sendCommentByProjectId = async (req, res, next) => {
             success: true,
             message: 'Comment Sent Successfully',
             data: {
-                comment: comment
+                comment: toCommentResponseDto(comment)
             }
         })
     }
