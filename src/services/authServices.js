@@ -48,7 +48,7 @@ exports.signIn = async (email, password) => {
 }
 
 exports.forgotPassword = async (email) => {
-    const user = await User.findOne({ email: email }).populate('skills', 'name')
+    const user = await User.findOne({ email: email })
 
     if (!user) {
         throw new NotFoundError('Email not found')

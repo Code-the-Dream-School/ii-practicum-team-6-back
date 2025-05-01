@@ -1,6 +1,7 @@
 const Project = require('../models/project')
 const ProjectRequest = require('../models/projectRequest')
 const {NotFoundError, BadRequestError,ForbiddenError} = require('../errors')
+const { getAllCommentsByTheProjectId } = require('../services/commentServices')
 
 const getAllProjects = async (req, res, next) => {
     try {
@@ -73,10 +74,12 @@ const createProject = async(req,res, next)=>{
 const getProjectById = async(req,res, next)=>{
     try {
         const project = req.project; //comes from middleware
+        const comments = await getAllCommentsByTheProjectId(project._id)
         const projectWithlikesCount = {
             ...project.toObject({virtuals:false}), //this does not add additional id field
             likesCount : project.likes.length,
             teamNum: project.teamMembers.length,
+            comments,
             availableSpots: project.reqSpots - project.teamMembers.length,
         }
         res.status(200).json({
