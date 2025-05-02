@@ -5,9 +5,7 @@ const projectCreateValidator= Joi.object({
   description: Joi.string().trim().max(500).required(),
   reqSpots: Joi.number().min(1).required(),
   
-  reqSkills: Joi.array()
-    .items(Joi.string().hex().length(24)) 
-    .default([]),
+  reqSkills: Joi.array().items(Joi.string()).required(),
 
   teamMembers: Joi.array().items(
     Joi.object({
