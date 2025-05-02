@@ -18,7 +18,6 @@ exports.getAllUsers = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        console.log(page, limit)
         const {users, total} = await userService.getAllUsers(page, limit)
         res.status(200).json({
             success: true,
