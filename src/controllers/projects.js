@@ -157,22 +157,27 @@ const leaveProject = async(req,res, next)=>{
     }
 }
 
-const addVote = async(req,res, next)=>{
-    const userId = req.user.id;
-    const project = req.project;
-    //check if user already liked a project
-    const alreadyVote = project.likes.includes(userId)
-    if(alreadyVote){
-        throw new BadRequestError('User already voted for this project')
+const addVote = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const project = req.project;
+    
+        if (project.likes.includes(userId)) {
+            throw new BadRequestError('You already voted for this project');
+        }
+    
+        project.likes.push(userId);
+        await project.save();
+    
+        res.status(200).json({
+            success: true,
+            message: "Project liked",
+            data: { likesCount: project.likes.length }
+        });
+    } catch (error) {
+      next(error); 
     }
-    project.likes.push(userId);
-    await project.save();
-    res.status(200).json({
-        success: true,
-        message: "Project liked",
-        data: { likesCount: project.likes.length }
-    });
-}
+  };
 
 const getAllVotes= async(req,res, next)=>{
     const project = req.project;
@@ -185,51 +190,53 @@ const getAllVotes= async(req,res, next)=>{
 }
 
 const removeVote = async(req,res, next)=>{
-    const userId = req.user.id;
-    const project = req.project;
-    const index = project.likes.indexOf(userId);
-    if (index === -1) {
-        throw new BadRequestError('You have not liked this project');
+    try {
+        const userId = req.user.id;
+        const project = req.project;
+        const index = project.likes.indexOf(userId);
+        if (index === -1) {
+            throw new BadRequestError('You have not liked this project');
+        }
+        project.likes.splice(index, 1);
+        await project.save();
+        res.status(200).json({
+            success: true,
+            message: "Project unvoted",
+            data: { likesCount: project.likes.length }
+        });
+    } catch (error) {
+        next(error)
     }
-    project.likes.splice(index, 1);
-    await project.save();
-    res.status(200).json({
-        success: true,
-        message: "Project unvoted",
-        data: { likesCount: project.likes.length }
-    });
+    
 }
 
 // ============ PROJECT REQUEST  =============
-const sendJoinRequest = async(req,res, next)=>{
+const sendJoinRequest = async (req, res, next) => {
     try {
-        const userId = req.user.id
-        const {joinMessage} = req.body;
+        const userId = req.user.id;
+        const { joinMessage } = req.body;
         const project = req.project;
         const projectId = project._id;
-        if(!userId || !joinMessage){
-            throw new BadRequestError('User ID and join message are required')
+    
+        if (!joinMessage) {
+            throw new BadRequestError('Join message is required');
         }
-        //check if user is a member
-        const isMember = project.teamMembers.some(member => member.user.toString() === userId)
-       
+    
+        // Check if user is already a team member
+        const isMember = project.teamMembers.some(member => member.user.toString() === userId);
         if (isMember) {
             throw new BadRequestError('User is already a project member.');
-          }
-        //check if a request is already exists
-        const updatedRequest = await ProjectRequest.findOneAndUpdate(
-            { projectId, userId },
-            { status: "pending", joinMessage },
-            { new: true }
-          );
-          if(updatedRequest){
-            return res.status(200).json({
-                success: true,
-                message: "Join request updated",
-                data: { request: updatedRequest }
+        }
+    
+        // Check if a join request already exists
+        const existingRequest = await ProjectRequest.findOne({ projectId, userId });
+        if (existingRequest) {
+            return res.status(400).json({
+            success: false,
+            message: 'You have already sent a join request for this project.',
             });
-          }
-        // Create new join request
+        }
+        // Create a new join request
         const newRequest = await ProjectRequest.create({
             projectId,
             userId,
@@ -237,14 +244,13 @@ const sendJoinRequest = async(req,res, next)=>{
         });
         res.status(200).json({
             success: true,
-            message: "Join request sent",
+            message: 'Join request sent',
             data: { request: newRequest }
         });
-      
     } catch (error) {
-        next(error);
+      next(error);
     }
-}
+  };
 
 const unsendJoinRequest  = async(req,res, next)=>{
     try {
