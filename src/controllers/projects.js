@@ -162,23 +162,34 @@ const leaveProject = async (req, res, next) => {
     }
 }
 
-const addVote = async (req, res, next) => {
+const toggleVote = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const project = req.project;
-    
+        
+        //remove the vote if user double click the button
         if (project.likes.includes(userId)) {
-            throw new BadRequestError('You already voted for this project');
+            console.log();
+            
+            project.likes = project.likes.filter(id => id.toString() !== userId.toString())
+            await project.save()
+            res.status(200).json({
+                success: true,
+                message: "Project unliked",
+                data: { likesCount: project.likes.length }
+            })
         }
-    
-        project.likes.push(userId);
-        await project.save();
-    
-        res.status(200).json({
-            success: true,
-            message: "Project liked",
-            data: { likesCount: project.likes.length }
-        });
+        else{
+            project.likes.push(userId);
+            await project.save();
+        
+            res.status(200).json({
+                success: true,
+                message: "Project liked",
+                data: { likesCount: project.likes.length }
+            });
+        }
+        
     } catch (error) {
       next(error); 
     }
@@ -194,27 +205,6 @@ const getAllVotes = async (req, res, next) => {
     });
 }
 
-const removeVote = async(req,res, next)=>{
-    try {
-
-        const userId = req.user.id;
-        const project = req.project;
-        const index = project.likes.indexOf(userId);
-        if (index === -1) {
-            throw new BadRequestError('You have not liked this project');
-        }
-        project.likes.splice(index, 1);
-        await project.save();
-        res.status(200).json({
-            success: true,
-            message: "Project unvoted",
-            data: { likesCount: project.likes.length }
-        });
-    } catch (error) {
-        next(error)
-    }
-    
-}
 
 // ============ PROJECT REQUEST  =============
 const sendJoinRequest = async (req, res, next) => {
@@ -300,8 +290,7 @@ module.exports = {
     updateProject,
     deleteProject,
     leaveProject,
-    addVote,
-    removeVote,
+    toggleVote,
     sendJoinRequest,
     unsendJoinRequest,
     getProjectJoinRequests,
