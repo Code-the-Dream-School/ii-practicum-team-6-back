@@ -13,9 +13,8 @@ const {
   deleteProject,
   leaveProject,
   sendJoinRequest,
-  addVote,
+  toggleVote,
   getAllVotes,
-  removeVote,
   getProjectJoinRequests,
   unsendJoinRequest
 } = require('../controllers/projects');
@@ -434,98 +433,40 @@ router.route('/:id/leave')
  *                       example: 5
  *
  *   post:
- *     summary: Add a vote (like) to a project
- *     tags: [Votes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project liked
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project liked
- *                 data:
- *                   type: object
- *                   properties:
- *                     likesCount:
- *                       type: integer
- *                       example: 6
- *       400:
- *         description: User already voted for this project
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: User already voted for this project
- *
- *   delete:
- *     summary: Remove a vote (unlike) from a project
- *     tags: [Votes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project unvoted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project unvoted
- *                 data:
- *                   type: object
- *                   properties:
- *                     likesCount:
- *                       type: integer
- *                       example: 4
- *       400:
- *         description: User has not voted for this project
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: You have not liked this project
+*     summary: Toggle a vote (like/unlike) for a project
+*     tags: [Votes]
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: string
+*         required: true
+*         description: Project ID
+*     responses:
+*       200:
+*         description: Project liked or unliked
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Project liked
+*                 data:
+*                   type: object
+*                   properties:
+*                     likesCount:
+*                       type: integer
+*                       example: 6
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
-  .post(authenticate,addVote)
+  .post(authenticate,toggleVote)
   .get(getAllVotes)
-  .delete(authenticate,removeVote);
 
 /**
 /**
