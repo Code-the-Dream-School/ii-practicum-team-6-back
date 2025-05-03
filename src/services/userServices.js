@@ -19,9 +19,6 @@ exports.getAllUsers = async (page, limit) => {
 
     const pages = Math.ceil(total / limit);
 
-    console.log(total)
-
-
     if (page > pages) {
         throw new BadRequestError('Page not found');
     }
