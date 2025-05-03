@@ -191,6 +191,7 @@ const getAllVotes= async(req,res, next)=>{
 
 const removeVote = async(req,res, next)=>{
     try {
+
         const userId = req.user.id;
         const project = req.project;
         const index = project.likes.indexOf(userId);
@@ -271,16 +272,21 @@ const unsendJoinRequest  = async(req,res, next)=>{
 }
 
 const getProjectJoinRequests = async(req,res, next)=>{
-    const projectId = req.project._id;
-    const requests = await ProjectRequest.find({projectId});
-    if(!requests){
-        throw new NotFoundError('There is no request for this project')
+    try {
+        const projectId = req.project._id;
+        const requests = await ProjectRequest.find({projectId});
+        if(!requests){
+            throw new NotFoundError('There is no request for this project')
+        }
+        res.status(200).json({
+            success: true,
+            message: "Project requests fetched successfuly",
+            data: { request: requests }
+        });
+    } catch (error) {
+        next(error)
     }
-    res.status(200).json({
-        success: true,
-        message: "Project requests fetched successfuly",
-        data: { request: requests }
-    });
+    
 }
 
 module.exports ={
