@@ -1,31 +1,22 @@
-const User = require('../models/user')
-const Skill = require('../models/skill')
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const crypto = require('crypto');
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const BadRequestError = require('../errors/bad-request')
-const UnauthenticatedError = require('../errors/unauthenticated')
-const NotFoundError = require('../errors/not-found')
-const userIdSchema = require('../validators/userIdValidator')
-const resetPasswordSchema = require('../validators/resetPasswordValidator')
 const userService = require('../services/userServices')
-const { toUsersResponseDto, toUserResponseDto } = require('../dtos/user.dto')
+const { toUsersResponseDto, toUserResponseDto } = require('../dtos/user.dto');
+const BadRequestError = require('../errors/bad-request')
+
 
 exports.getAllUsers = async (req, res, next) => {
 
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const {users, total} = await userService.getAllUsers(page, limit)
+        const { users, total } = await userService.getAllUsers(page, limit)
         res.status(200).json({
             success: true,
             message: 'Users Fetched Successfully',
             data: {
                 users: toUsersResponseDto(users),
                 totalUsers: total,
-                limit : limit,
+                limit: limit,
                 page: page,
             }
         })
@@ -88,6 +79,42 @@ exports.deleteMyProfile = async (req, res, next) => {
     }
     catch (err) {
         next(err)
+    }
+}
+
+
+exports.uploadAvatar = async (req, res, next) => {
+
+    try {
+
+        if (!req.file?.path) {
+            throw new BadRequestError('Avatar not Uploaded')
+        }
+
+        const uploadResult = await userService.uploadAvatar(req.file.path, req.user.id)
+
+        res.status(200).json({
+            success: true,
+            message: 'File Uploaded Successfully',
+            data: { avatarUrl: uploadResult.url }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.deleteAvatar = async (req, res, next) => {
+
+    try {
+
+        await userService.deleteAvatar(req.user.id)
+
+        res.status(200).json({
+            success: true,
+            message: 'Avatar deleted Successfully',
+        })
+    } catch (error) {
+        next(error)
     }
 }
 
