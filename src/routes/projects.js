@@ -13,11 +13,11 @@ const {
   deleteProject,
   leaveProject,
   sendJoinRequest,
-  addVote,
+  toggleVote,
   getAllVotes,
-  removeVote,
   getProjectJoinRequests,
-  unsendJoinRequest
+  unsendJoinRequest,
+  reviewJoinRequest
 } = require('../controllers/projects');
 
 const router = express.Router();
@@ -523,9 +523,8 @@ router.route('/:id/leave')
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
-  .post(authenticate,addVote)
+  .post(authenticate,toggleVote)
   .get(getAllVotes)
-  .delete(authenticate,removeVote);
 
 /**
 /**
@@ -745,7 +744,9 @@ router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
   .post(authenticate,sendJoinRequest)
   .get(getProjectJoinRequests)
-  .delete(authenticate,unsendJoinRequest);
+  .delete(authenticate,unsendJoinRequest)
+
+router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
 
 router.use('/:projectId/comments', commentRoutes);
 module.exports = router;
