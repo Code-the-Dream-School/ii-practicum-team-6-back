@@ -331,7 +331,7 @@ router.route('/')
  */
 router.route('/:id')
   .all(fetchProjectMiddleware)
-  .get(authenticate,getProjectById)
+  .get(getProjectById)
   .delete(authenticate,deleteProject)
   .patch(authenticate,validate(projectUpdateValidator), updateProject);
 
