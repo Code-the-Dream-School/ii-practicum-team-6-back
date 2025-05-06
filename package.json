@@ -1,7 +1,7 @@
 {
-  "name": "bb-practicum-team-1-back",
+  "name": "bb-practicum-team-6-back",
   "version": "1.0.0",
-  "description": "Back-End Repo for Team 1 of Baboon/Bald Eagle Practicum",
+  "description": "Back-End Repo for Team 6 Practicum",
   "main": "app.js",
   "scripts": {
     "start": "node src/server.js",
@@ -25,7 +25,6 @@
     "mongoose": "^8.12.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.2",
-    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.10.1",
     "streamifier": "^0.1.1",
     "swagger-jsdoc": "^6.2.8",
