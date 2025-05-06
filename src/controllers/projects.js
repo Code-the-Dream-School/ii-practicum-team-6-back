@@ -59,8 +59,6 @@ const createProject = async (req, res, next) => {
         const { title, description, reqSpots, reqSkills } = req.body
         const createdBy = req.user.id
         const skills = await Skill.find({ name: { $in: reqSkills } }).select('name');
-        console.log(skills+ '1')
-        
 
         const newProject = await Project.create({
             title,

@@ -57,7 +57,7 @@ exports.signOut = (req, res, next) => {
 };
 
 exports.authMe = (req, res, next) => {
-    console.log("auth")
+    
     try {
         const user = req.user;
         res.status(200).json({
