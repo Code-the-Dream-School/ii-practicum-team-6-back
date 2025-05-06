@@ -290,9 +290,7 @@ const getProjectJoinRequests = async(req,res, next)=>{
 }
 
 const reviewJoinRequest = async(req,res,next)=>{
-    try {
-        console.log('review request');
-        
+    try {        
         const {action} = req.body;
         const {requestId} = req.params
         const request = await ProjectRequest.findById(requestId)
