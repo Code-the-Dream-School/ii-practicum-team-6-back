@@ -265,20 +265,74 @@ const unsendJoinRequest = async (req, res, next) => {
 
 const getProjectJoinRequests = async(req,res, next)=>{
     try {
+        const project = req.project
         const projectId = req.project._id;
-        const requests = await ProjectRequest.find({projectId});
-        if(!requests){
-            throw new NotFoundError('There is no request for this project')
+        const userId = req.user.id;
+
+        if(project.createdBy === userId){
+            const requests = await ProjectRequest.find({projectId});
+            if(!requests){
+                throw new NotFoundError('There is no request for this project')
+            }
+            res.status(200).json({
+                success: true,
+                message: "Project requests fetched successfuly",
+                data: { request: requests }
+            });
         }
+        else{
+            throw new ForbiddenError("You are not authorized to view join requests for this project");
+        }
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+const reviewJoinRequest = async(req,res,next)=>{
+    try {
+        console.log('review request');
+        
+        const {action} = req.body;
+        const {requestId} = req.params
+        const request = await ProjectRequest.findById(requestId)
+        if(!request){
+            throw new NotFoundError('Join request not found')
+        }
+        if(action === 'approve'){
+            request.status = 'approved'
+            await Project.findByIdAndUpdate(request.projectId, {
+                $push: { teamMembers: { user: request.userId, role: "member" } }
+              });
+        }
+        else if(action === 'decline'){
+            request.status = 'declined'
+            //check if the user is already a member of the project remove it
+            const project = await Project.findById(request.projectId)
+            const isMember = project.teamMembers.some(
+                (member) => member.user.toString() === request.userId.toString()
+            )
+            if(isMember){
+                await Project.findByIdAndUpdate(request.projectId,{
+                    $pull:{teamMembers: {user:request.userId}}
+                })
+            }
+        }
+        else{
+            throw new BadRequestError('Invalid action')
+        }
+        await request.save();
+
         res.status(200).json({
-            success: true,
-            message: "Project requests fetched successfuly",
-            data: { request: requests }
+        success: true,
+        message: `Request ${action}ed successfully`,
+        data: { request }
         });
     } catch (error) {
         next(error)
     }
     
+
 }
 
 module.exports = {
@@ -291,6 +345,7 @@ module.exports = {
     toggleVote,
     sendJoinRequest,
     unsendJoinRequest,
+    reviewJoinRequest,
     getProjectJoinRequests,
     getAllVotes
 }
