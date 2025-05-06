@@ -69,6 +69,30 @@ const options = {
             },
             createdAt: { type: 'string', example: '2024-04-08T12:00:00Z' },
             updatedAt: { type: 'string', example: '2024-04-08T12:00:00Z' },
+            likesCount: { type: 'integer', example: 1 }, 
+          },
+        },
+        ProjectBody: {
+          type: 'object',
+          required: ['title', 'description', 'reqSpots'],
+          properties: {
+            title: { type: 'string', example: 'Build an App' },
+            description: { type: 'string', example: 'An app for project collaboration.' },
+            reqSpots: { type: 'integer', example: 5 },
+            reqSkills: {
+              type: 'array',
+              items: { type: 'string', example: '660a3aabc32c7f5320e9a4e9' },
+            },
+            teamMembers: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  user: { type: 'string', example: '660aa20dc32c7f5320e9a4e1' },
+                  role: { type: 'string', enum: ['admin', 'user'], example: 'admin' },
+                },
+              },
+            },
           },
         },
 

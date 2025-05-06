@@ -26,9 +26,17 @@ const userSchema = new Schema(
             maxlength: 500,
         },
         avatar: {
-            type: String,
-            default: ""
-        },
+            url: {
+              type: String,
+              required: false,
+              default: ""
+            },
+            public_id: {
+              type: String,
+              required: false,
+              default: ""
+            }
+          },
         skills: {
             type: [
                 {

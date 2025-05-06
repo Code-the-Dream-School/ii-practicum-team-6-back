@@ -1,14 +1,10 @@
 const User = require('../models/user')
 const Skill = require('../models/skill')
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const crypto = require('crypto');
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const BadRequestError = require('../errors/bad-request')
-const UnauthenticatedError = require('../errors/unauthenticated')
 const NotFoundError = require('../errors/not-found')
-const userIdSchema = require('../validators/userIdValidator')
+const { cloudinary } = require('../utils/cloudinaryStorage');
+
 
 exports.getAllUsers = async (page, limit) => {
 
@@ -18,9 +14,6 @@ exports.getAllUsers = async (page, limit) => {
     const total = await User.countDocuments();
 
     const pages = Math.ceil(total / limit);
-
-    console.log(total)
-
 
     if (page > pages) {
         throw new BadRequestError('Page not found');
@@ -75,6 +68,43 @@ exports.deleteMyProfile = async (userId) => {
     const deletedUser = await User.findByIdAndDelete(userId)
     if (!deletedUser) {
         throw new NotFoundError('User not found')
+    }
+}
+
+exports.uploadAvatar = async (file, userId) => {
+
+    const user = await User.findById(userId)
+    if (user.avatar?.public_id) {
+        await cloudinary.uploader.destroy(user.avatar.public_id);
+    }
+    const uploadResult = await cloudinary.uploader.upload(file, {
+        folder: 'avatars',
+        public_id: `avatar_${Date.now()}`,
+    });
+    user.avatar = {
+        url: uploadResult.secure_url,
+        public_id: uploadResult.public_id
+    }
+    await user.save();
+
+    return uploadResult
+
+}
+
+exports.deleteAvatar = async (userId) => {
+
+    const user = await User.findById(userId)
+    if (user.avatar?.public_id) {
+        await cloudinary.uploader.destroy(user.avatar.public_id);
+        user.avatar = {
+            url: '',
+            public_id: ''
+        }
+        await user.save();
+    }
+    else {
+        throw new BadRequestError('No avatar to delete')
+
     }
 }
 

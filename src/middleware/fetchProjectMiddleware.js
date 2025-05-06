@@ -3,13 +3,14 @@ const { NotFoundError } = require('../errors');
 
 const fetchProject = async (req, res, next) => {
     const { id: projectId } = req.params;
+
     try {
-      const project = await Project.findById(projectId);
+      const project = await Project.findById(projectId).populate('reqSkills', 'name');
       if (!project) {
         throw new NotFoundError(`No project with id ${projectId}`);
       }
       req.project = project; // attach it to req
-      next();
+      next()
     } catch (err) {
       next(err);
     }
