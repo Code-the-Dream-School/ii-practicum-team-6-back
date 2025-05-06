@@ -3,7 +3,8 @@ const userController = require('../controllers/userController')
 const router = express.Router();
 const { authenticate } = require('../middleware/authMiddleware')
 const userIdSchema = require('../validators/userIdValidator');
-const { validateRequest } = require('../middleware/projectRequestValidate')
+const { validateRequest } = require('../middleware/validateRequest')
+const upload = require('../middleware/uploadMiddleware')
 
 /**
  * @swagger
@@ -246,6 +247,9 @@ router.delete('/me', authenticate, userController.deleteMyProfile)
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: User Updated Successfully
@@ -283,9 +287,137 @@ router.delete('/me', authenticate, userController.deleteMyProfile)
  *                 message:
  *                   type: string
  *                   example: User not found
+ *        
  */
 
 router.patch('/me', authenticate, userController.updateMyProfile)
+
+
+/**
+ * @swagger
+ * users/avatar:
+ *   post:
+ *     summary: Upload Avatar
+ *     tags:
+ *       - User
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Avatar deleted Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Avatar Uploaded Successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     avatarUrl:
+ *                       type: string
+ *                       example : http://res.cloudinary.com/dvgigti2y/image/upload/v1746316365/avatars/avatar_1746316364038.jpg
+ *       400:
+ *         description: Avatar not uploaded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Avatar not Uploaded
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
+
+
+
+router.post('/avatar', authenticate, upload.single('avatar'), userController.uploadAvatar)
+
+/**
+ * @swagger
+ * users/avatar:
+ *   delete:
+ *     summary: Delete my Avatar
+ *     tags:
+ *       - User
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Avatar deleted Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Avatar deleted successfully
+ *       400:
+ *         description: User has no avatar
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: No avatar to delete
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
+
+router.delete('/avatar', authenticate, userController.deleteAvatar)
 
 
 module.exports = router;

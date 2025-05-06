@@ -21,8 +21,8 @@ exports.signUp = async (req, res, next) => {
 
 exports.signIn = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-        const { token, user } = await authService.signIn(email, password);
+        const { email, password ,rememberMe } = req.body;
+        const { token, user } = await authService.signIn(email, password, rememberMe);
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -57,7 +57,7 @@ exports.signOut = (req, res, next) => {
 };
 
 exports.authMe = (req, res, next) => {
-    console.log("auth")
+    
     try {
         const user = req.user;
         res.status(200).json({

@@ -3,6 +3,7 @@ const fetchProjectMiddleware = require('../middleware/fetchProjectMiddleware');
 const validate = require('../middleware/projectValidateMiddleware');
 const { projectCreateValidator } = require('../validators/projectCreateValidator');
 const {projectUpdateValidator} = require('../validators/projectUpdateValidator')
+const commentRoutes = require('./comments')
 const { authenticate } = require('../middleware/authMiddleware');
 const {
   getAllProjects,
@@ -12,11 +13,11 @@ const {
   deleteProject,
   leaveProject,
   sendJoinRequest,
-  addVote,
+  toggleVote,
   getAllVotes,
-  removeVote,
   getProjectJoinRequests,
-  unsendJoinRequest
+  unsendJoinRequest,
+  reviewJoinRequest
 } = require('../controllers/projects');
 
 const router = express.Router();
@@ -30,58 +31,74 @@ const router = express.Router();
 
 /**
  * @swagger
- * /projects:
-  *   get:
- *     summary: Get all projects
- *     tags: [Projects]
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         required: false
- *         description: Number of projects per page (default is 10)
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *         required: false
- *         description: Page number to retrieve (default is 1)
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *           enum: [createdAt-desc,mostLiked]
- *         required: false
- *         description: Sort by newest (createdAt-desc) or most liked (mostLiked)
- *     responses:
- *       200:
- *         description: List of all projects
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     projects:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Project'
- *                     numberOfProjects:
- *                       type: integer
- *                       example: 20
- *                     currentPage:
- *                       type: integer
- *                       example: 1
- *                     totalPages:
- *                       type: integer
- *                       example: 2
+* /projects:
+*   get:
+*     summary: Get all projects
+*     tags: [Projects]
+*     description: |
+*       Example request:
+*       GET /projects?limit=5&page=1&sort=mostLiked&search=collaboration
+*     parameters:
+*       - in: query
+*         name: limit
+*         schema:
+*           type: integer
+*         required: false
+*         description: Number of projects per page (default is 10)
+*         example: 5
+*       - in: query
+*         name: page
+*         schema:
+*           type: integer
+*         required: false
+*         description: Page number to retrieve (default is 1)
+*         example: 1
+*       - in: query
+*         name: sort
+*         schema:
+*           type: string
+*           enum: [createdAt-desc, mostLiked]
+*         required: false
+*         description: Sort by newest (createdAt-desc) or most liked (mostLiked)
+*         example: mostLiked
+*       - in: query
+*         name: search
+*         schema:
+*           type: string
+*         required: false
+*         description: Keyword to search in title or description
+*         example: collaboration
+*     responses:
+*       200:
+*         description: List of all projects
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Projects fetched successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     projects:
+*                       type: array
+*                       items:
+*                         $ref: '#/components/schemas/Project'
+*                     numberOfProjects:
+*                       type: integer
+*                       example: 20
+*                     currentPage:
+*                       type: integer
+*                       example: 1
+*                     totalPages:
+*                       type: integer
+*                       example: 2
+ *
  *       500:
  *         description: Server error
  *         content:
@@ -417,98 +434,40 @@ router.route('/:id/leave')
  *                       example: 5
  *
  *   post:
- *     summary: Add a vote (like) to a project
- *     tags: [Votes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project liked
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project liked
- *                 data:
- *                   type: object
- *                   properties:
- *                     likesCount:
- *                       type: integer
- *                       example: 6
- *       400:
- *         description: User already voted for this project
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: User already voted for this project
- *
- *   delete:
- *     summary: Remove a vote (unlike) from a project
- *     tags: [Votes]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project unvoted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project unvoted
- *                 data:
- *                   type: object
- *                   properties:
- *                     likesCount:
- *                       type: integer
- *                       example: 4
- *       400:
- *         description: User has not voted for this project
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: You have not liked this project
+*     summary: Toggle a vote (like/unlike) for a project
+*     tags: [Votes]
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: string
+*         required: true
+*         description: Project ID
+*     responses:
+*       200:
+*         description: Project liked or unliked
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Project liked
+*                 data:
+*                   type: object
+*                   properties:
+*                     likesCount:
+*                       type: integer
+*                       example: 6
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
-  .post(authenticate,addVote)
+  .post(authenticate,toggleVote)
   .get(getAllVotes)
-  .delete(authenticate,removeVote);
 
 /**
 /**
@@ -728,5 +687,9 @@ router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
   .post(authenticate,sendJoinRequest)
   .get(getProjectJoinRequests)
-  .delete(authenticate,unsendJoinRequest);
+  .delete(authenticate,unsendJoinRequest)
+
+router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
+
+router.use('/:projectId/comments', commentRoutes);
 module.exports = router;

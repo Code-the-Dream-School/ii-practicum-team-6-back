@@ -66,5 +66,7 @@ projectSchema.virtual('teamNum').get(function () {
 projectSchema.virtual('availableSpots').get(function () {
     return this.reqSpots - (this.teamMembers ? this.teamMembers.length : 0);
 });
+// Create a text index for searching
+projectSchema.index({ title: 'text', description: 'text'});
 
 module.exports = mongoose.model('Project', projectSchema);
