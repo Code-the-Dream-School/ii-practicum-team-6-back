@@ -12,38 +12,33 @@ const getAllProjects = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
         const { sort, search } = req.query;
-        let filter = {}
+        let filter = {};
         if (search) {
-            filter = { $text: { $search: search } }
+            filter = { $text: { $search: search } };
         }
-        const projects = await Project.find(filter).populate('reqSkills', 'name')
-            .skip(skip)
-            .limit(limit)
-            .lean(); // lean returns plain js objects 
-
-        //in order to add likesCount filed we need to have a js object 
-        const projectsWithLikes = projects.map(project => ({
-            ...project,
-            likesCount: project.likes?.length || 0,
-        }));
-
-        let sortedProjects = projectsWithLikes;
+        let sortOption = { createdAt: 1 }; 
 
         if (sort === 'mostLiked') {
-            sortedProjects = projectsWithLikes.sort((a, b) => b.likesCount - a.likesCount);
+            sortOption = { likesCount: -1 };
         } else if (sort === 'createdAt-desc') {
-            sortedProjects = projectsWithLikes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        } else {
-            sortedProjects = projectsWithLikes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            sortOption = { createdAt: -1 };
         }
 
-        const numberOfProjects = await Project.countDocuments();
+        const [projects, numberOfProjects] = await Promise.all([
+            Project.find(filter)
+                .sort(sortOption)
+                .skip(skip)
+                .limit(limit)
+                .populate('reqSkills', 'name')
+                .lean(),
+            Project.countDocuments(filter)
+        ]);
 
         res.status(200).json({
             success: true,
             message: 'Projects fetched successfully',
             data: {
-                projects: sortedProjects,
+                projects,
                 numberOfProjects,
                 currentPage: page,
                 totalPages: Math.ceil(numberOfProjects / limit),
@@ -82,9 +77,8 @@ const getProjectById = async (req, res, next) => {
     try {
         const project = req.project; //comes from middleware
         const comments = await getAllCommentsByTheProjectId(project._id)
-        const projectWithlikesCount = {
+        const projectWithComments = {
             ...project.toObject({ virtuals: false }), //this does not add additional id field
-            likesCount: project.likes.length,
             teamNum: project.teamMembers.length,
             comments,
             availableSpots: project.reqSpots - project.teamMembers.length,
@@ -92,7 +86,7 @@ const getProjectById = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "Project fetched successfully",
-            data: { project: projectWithlikesCount }
+            data: { project: projectWithComments }
         });
     } catch (error) {
         next(error);
@@ -167,14 +161,12 @@ const toggleVote = async (req, res, next) => {
         
         //remove the vote if user double click the button
         if (project.likes.includes(userId)) {
-            console.log();
-            
             project.likes = project.likes.filter(id => id.toString() !== userId.toString())
             await project.save()
             res.status(200).json({
                 success: true,
                 message: "Project unliked",
-                data: { likesCount: project.likes.length }
+                data: { likesCount: project.likesCount }
             })
         }
         else{
@@ -184,7 +176,7 @@ const toggleVote = async (req, res, next) => {
             res.status(200).json({
                 success: true,
                 message: "Project liked",
-                data: { likesCount: project.likes.length }
+                data: { likesCount: project.likesCount}
             });
         }
         
@@ -195,7 +187,7 @@ const toggleVote = async (req, res, next) => {
 
 const getAllVotes = async (req, res, next) => {
     const project = req.project;
-    const votesCount = project.likes.length;
+    const votesCount = project.likesCount;
     res.status(200).json({
         success: true,
         message: "Project likes fetched successfully",
