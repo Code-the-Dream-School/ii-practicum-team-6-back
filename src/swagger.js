@@ -113,7 +113,6 @@ const options = {
           properties: {
             id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
             name: { type: 'string', example: 'JavaScript' },
-
           }
         },
         User: {
