@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')
-const commentRoutes = require('./routes/comments')
 const projectRoutes = require('./routes/projects.js')
 const skillRoutes = require('./routes/skills.js')
 const notFoundMiddleware = require('./middleware/notFoundMiddleware.js');
@@ -39,7 +38,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes)
 app.use('/api/skills', skillRoutes)
-// app.use('/api/comments', commentRoutes)
 
 
 //error handler

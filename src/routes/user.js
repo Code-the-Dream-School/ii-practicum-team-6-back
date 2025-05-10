@@ -428,6 +428,62 @@ router.post('/avatar', authenticate, upload.single('avatar'), userController.upl
  *                   type: string
  *                   example: Not Authorized
  */
+/**
+ * @swagger
+ * users/avatar:
+ *   delete:
+ *     summary: Delete my Avatar
+ *     tags:
+ *       - User
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Avatar deleted Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Avatar deleted successfully
+ *       400:
+ *         description: User has no avatar
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: No avatar to delete
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
 
 router.delete('/avatar', authenticate, userController.deleteAvatar)
 

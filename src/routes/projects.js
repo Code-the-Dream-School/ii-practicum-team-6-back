@@ -3,6 +3,7 @@ const fetchProjectMiddleware = require('../middleware/fetchProjectMiddleware');
 const validate = require('../middleware/projectValidateMiddleware');
 const { projectCreateValidator } = require('../validators/projectCreateValidator');
 const {projectUpdateValidator} = require('../validators/projectUpdateValidator')
+const userController = require('../controllers/userController')
 const commentRoutes = require('./comments')
 const { authenticate } = require('../middleware/authMiddleware');
 const {
@@ -21,6 +22,138 @@ const {
 } = require('../controllers/projects');
 
 const router = express.Router();
+router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
+
+/**
+ * @swagger
+ * projects/myProjects:
+ *   get:
+ *     summary: get my Projects
+ *     tags:
+ *       - Projects
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: My Projects fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: My Projects fetched successfully
+ *                 data:
+*                    type: object
+*                    properties:
+*                      projects:
+*                        type: array
+*                        items:
+*                          $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: No projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: No projects
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
+
+/**
+ * @swagger
+ * projects/myProjectRequests:
+ *   get:
+ *     summary: get my Project Requests
+ *     tags:
+ *       - Projects
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: My Project Requests fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: My Project Requests fetched successfully
+ *                 data:
+*                    type: object
+*                    properties:
+*                      projects:
+*                        type: array
+*                        items:
+*                          $ref: '#/components/schemas/ProjectRequest'
+ *       400:
+ *         description: No project requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: No project requests
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
+
+router.get('/myProjects', authenticate, userController.myProjects)
+
 
 /**
  * @swagger
@@ -157,6 +290,8 @@ const router = express.Router();
  *                   type: string
  *                   example: Error creating the project
  */
+
+
 router.route('/')
   .get(getAllProjects)
   .post(authenticate,validate(projectCreateValidator), createProject);
@@ -753,6 +888,8 @@ router.route('/:id/votes')
  *                   example: Join request not found
  */
 
+
+
 router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
   .post(authenticate,sendJoinRequest)
@@ -760,6 +897,9 @@ router.route('/:id/join-requests')
   .delete(authenticate,unsendJoinRequest)
 
 router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
+
+
+
 
 router.use('/:projectId/comments', commentRoutes);
 module.exports = router;
