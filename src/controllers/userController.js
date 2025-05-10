@@ -133,26 +133,13 @@ exports.myProjects = async (req, res, next) => {
         next(error)
     }
 }
-exports.myCreatedProjects = async (req, res, next) => {
-    
-    try {
-        const projects = await userService.myProjects(req.user.id)
-
-        res.status(200).json({
-            success: true,
-            message: 'My Projects fetched successfully',
-            data: { projects: toProjectsResponseDto(projects) }
-        })
-    } catch (error) {
-        next(error)
-    }
-}
 
 exports.myProjectRequests = async (req, res, next) => {
     
     try {
-        const projectRequests = await userService.myProjectsRequests(req.user.id)
-
+        const { status } = req.query;
+        const projectRequests = await userService.myProjectsRequests(req.user.id, status)
+        
         res.status(200).json({
             success: true,
             message: 'My Project Requests fetched successfully',
