@@ -54,7 +54,7 @@ const createProject = async (req, res, next) => {
         const { title, description, reqSpots, reqSkills } = req.body
         const createdBy = req.user.id
 
-        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name');
+        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name').lean();
         const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
         const skillIds = sortedSkills.map(skill => skill._id);
     
@@ -119,7 +119,7 @@ const updateProject = async (req, res, next) => {
 
       Object.assign(req.project, otherFields);
   
-        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name');
+        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name').lean();
         const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
         const skillIds = sortedSkills.map(skill => skill._id);
         req.project.reqSkills = skillIds;
