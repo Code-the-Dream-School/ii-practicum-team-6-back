@@ -1,6 +1,5 @@
 function toSkillResponseDto(skill) {
   return {
-    id: skill._id,
     name: skill.name,
   };
 }

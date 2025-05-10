@@ -108,10 +108,9 @@ const options = {
             updatedAt: { type: 'string', example: '2024-04-08T13:00:00Z' },
           },
         },
-        Skill: {
+        Skills: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
             name: { type: 'string', example: 'JavaScript' },
           }
         },
@@ -125,7 +124,7 @@ const options = {
             avatar: { type: 'string', example: 'https://cdn.example.com/avatars/val.jpg' },
             skills: {
               type: 'array',
-              items: { $ref: '#/components/schemas/Skill' }
+              items: { $ref: '#/components/schemas/Skills' }
             },
             projectsIds: {
               type: 'array',
@@ -139,7 +138,7 @@ const options = {
 
     },
   },
-  apis: [path.join(__dirname, './routes/*.js')], // path to your route files with swagger annotations
+  apis: [path.join(__dirname, './routes/*.js')], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);

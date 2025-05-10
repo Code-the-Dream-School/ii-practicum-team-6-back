@@ -30,7 +30,7 @@ const{getAllSkills, searchSkills}= require('../controllers/skillController')
  *                     skills:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Skill'
+ *                         $ref: '#/components/schemas/Skills'
  */
 
 /**
@@ -71,7 +71,7 @@ const{getAllSkills, searchSkills}= require('../controllers/skillController')
  *                     skills:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Skill'
+ *                         $ref: '#/components/schemas/Skills'
  */
 
 /**
