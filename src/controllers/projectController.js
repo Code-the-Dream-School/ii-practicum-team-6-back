@@ -33,7 +33,7 @@ const getAllProjects = async (req, res, next) => {
                 .lean(),
             Project.countDocuments(filter)
         ]);
-
+        
         res.status(200).json({
             success: true,
             message: 'Projects fetched successfully',
@@ -53,20 +53,31 @@ const createProject = async (req, res, next) => {
     try {
         const { title, description, reqSpots, reqSkills } = req.body
         const createdBy = req.user.id
-        const skills = await Skill.find({ name: { $in: reqSkills } }).select('name');
 
+        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name');
+        const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
+        const skillIds = sortedSkills.map(skill => skill._id);
+    
         const newProject = await Project.create({
             title,
             description,
             createdBy,
             reqSpots,
-            reqSkills: skills ,
+            reqSkills: skillIds ,
             teamMembers: [{ user: createdBy, role: 'admin' }]
         })
+        // Populate skills by name 
+        await newProject.populate('reqSkills', 'name');
+
+        const skillNames = (newProject.reqSkills || []).map(skill => skill.name)
+  
         res.status(201).json({
             success: true,
             message: "Project created successfully",
-            data: { project: newProject }
+            data: { project: {
+                ...newProject.toObject(),
+                reqSkills:skillNames
+            } }
         });
     } catch (error) {
         next(error);
@@ -77,11 +88,14 @@ const getProjectById = async (req, res, next) => {
     try {
         const project = req.project; //comes from middleware
         const comments = await getAllCommentsByTheProjectId(project._id)
+        
+        await project.populate('reqSkills','name')
+        const skillsname = (project.reqSkills || []).map(skill=>skill.name)
+
         const projectWithComments = {
-            ...project.toObject({ virtuals: false }), //this does not add additional id field
-            teamNum: project.teamMembers.length,
+            ...project.toObject(), 
             comments,
-            availableSpots: project.reqSpots - project.teamMembers.length,
+            reqSkills:skillsname
         }
         res.status(200).json({
             success: true,
@@ -95,22 +109,40 @@ const getProjectById = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
     try {
-        const createdBy = req.user.id;
-        // Ensure that the project belongs to the user trying to update it
-        if (req.project.createdBy.toString() !== createdBy) {
-            throw new ForbiddenError("You are not authorized to update this project")
-        }
-        Object.assign(req.project, req.body);
-        const updatedProject = await req.project.save();
-        res.status(200).json({
-            success: true,
-            message: "Project updated successfully",
-            data: { project: updatedProject }
-        });
+      const createdBy = req.user.id;
+  
+      if (req.project.createdBy.toString() !== createdBy) {
+        throw new ForbiddenError("You are not authorized to update this project");
+      }
+  
+      const { reqSkills, ...otherFields } = req.body;
+
+      Object.assign(req.project, otherFields);
+  
+        const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name');
+        const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
+        const skillIds = sortedSkills.map(skill => skill._id);
+        req.project.reqSkills = skillIds;
+
+      const updatedProject = await req.project.save();
+
+      //return skills name
+      await updatedProject.populate('reqSkills','name')
+      const skillNames = (updatedProject.reqSkills || []).map(skill => skill.name) 
+
+      res.status(200).json({
+        success: true,
+        message: "Project updated successfully",
+        data: { project: {
+            ...updatedProject.toObject(),
+            reqSkills:skillNames
+        } }
+      });
+  
     } catch (error) {
-        next(error);
+      next(error);
     }
-};
+  };
 
 const deleteProject = async (req, res, next) => {
     try {

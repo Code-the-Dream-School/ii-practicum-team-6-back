@@ -18,7 +18,7 @@ const {
   getProjectJoinRequests,
   unsendJoinRequest,
   reviewJoinRequest
-} = require('../controllers/projects');
+} = require('../controllers/projectController');
 
 const router = express.Router();
 
