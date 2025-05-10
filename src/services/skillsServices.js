@@ -8,7 +8,7 @@ exports.getAllSkills = async () => {
     .collation({ locale: 'en', strength: 1 })
     .sort({name:1})
     .select('name -_id')
-    
+
     if (skills.length == 0) {
         throw new NotFoundError('No skills found')
     }

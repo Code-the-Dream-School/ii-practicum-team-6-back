@@ -121,7 +121,13 @@ const options = {
             username: { type: 'string', example: 'johndoe' },
             email: { type: 'string', example: 'johndoe@example.com' },
             bio: { type: 'string', example: 'Full-stack developer with a passion for clean code.' },
-            avatar: { type: 'string', example: 'https://cdn.example.com/avatars/val.jpg' },
+            avatar: {
+              type: 'object',
+              properties: {
+                url: { type: 'string', example: 'https://res.cloudinary.com/dvgigti2y/image/upload/v1746872405/avatars/avatar_1746872402328.jpg' },
+                public_id: { type: 'string', example: 'avatars/avatar_1746872402328' }
+              }
+            },
             skills: {
               type: 'array',
               items: { $ref: '#/components/schemas/Skills' }
