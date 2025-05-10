@@ -133,6 +133,20 @@ exports.myProjects = async (req, res, next) => {
         next(error)
     }
 }
+exports.myCreatedProjects = async (req, res, next) => {
+    
+    try {
+        const projects = await userService.myProjects(req.user.id)
+
+        res.status(200).json({
+            success: true,
+            message: 'My Created Projects fetched successfully',
+            data: { projects: projects }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
 
 exports.myProjectRequests = async (req, res, next) => {
     

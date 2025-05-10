@@ -87,6 +87,69 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *                   type: string
  *                   example: Not Authorized
  */
+/**
+ * @swagger
+ * /projects/myCreatedProjects:
+ *   get:
+ *     summary: get my Created Projects
+ *     tags:
+ *       - Projects
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: My Created Projects fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: My Created Projects fetched successfully
+ *                 data:
+*                    type: object
+*                    properties:
+*                      projects:
+*                        type: array
+*                        items:
+*                          $ref: '#/components/schemas/Project'
+ *       400:
+ *         description: No projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: No projects
+ *       401:
+ *         description: Not Authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Not Authorized
+ */
 
 /**
  * @swagger
@@ -160,6 +223,7 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  */
 
 router.get('/myProjects', authenticate, userController.myProjects)
+router.get('/myCreatedProjects', authenticate, userController.myProjects)
 
 
 /**
