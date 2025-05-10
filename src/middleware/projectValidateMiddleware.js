@@ -3,7 +3,11 @@ module.exports = (schema) => {
            
       const { error, value } = schema.validate(req.body);
       if (error) {
-        return res.status(400).json({ msg: error.details[0].message });
+        const cleanMessage = error.details[0].message.replace(/["']/g, '');
+        return res.status(400).json({ 
+          success: false,
+          message: cleanMessage
+        });
       }
       req.body = value; 
       next();

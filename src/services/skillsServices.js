@@ -5,6 +5,10 @@ const Skill = require('../models/skill')
 exports.getAllSkills = async () => {
 
     const skills = await Skill.find({})
+    .collation({ locale: 'en', strength: 1 })
+    .sort({name:1})
+    .select('name -_id')
+    
     if (skills.length == 0) {
         throw new NotFoundError('No skills found')
     }
