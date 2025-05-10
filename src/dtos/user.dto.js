@@ -6,7 +6,6 @@ function toUserResponseDto(user) {
     bio: user.bio || '',
     avatar: user.avatar || '',
     skills: user.skills.map(skill => ({
-      id: skill._id,
       name: skill.name
     })) || [],
     projectsIds: user.projectsIds || [],

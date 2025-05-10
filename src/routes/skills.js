@@ -71,7 +71,11 @@ const{getAllSkills, searchSkills}= require('../controllers/skillController')
  *                     skills:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Skills'
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             example: React
  */
 
 /**

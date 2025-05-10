@@ -11,7 +11,7 @@ const { toUserResponseDto } = require('../dtos/user.dto')
 
 exports.signUp = async (username, email, password) => {
     const hashedPassword = await bcrypt.hash(password, 6);
-    const existed = await User.findOne({ email }).populate('skills', 'name');
+    const existed = await User.findOne({ email }).populate('skills', 'name ');
 
     if (existed) {
         throw new BadRequestError('Account with this email already exists');
@@ -34,7 +34,7 @@ exports.signUp = async (username, email, password) => {
 
 exports.signIn = async (email, password, rememberMe) => {
     
-    const user = await User.findOne({ email: email }).populate('skills', 'name');
+    const user = await User.findOne({ email: email }).populate('skills', 'name ');
 
     if (!user) {
         throw new UnauthenticatedError('Authentication failed. User not found');
