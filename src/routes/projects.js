@@ -16,7 +16,8 @@ const {
   toggleVote,
   getAllVotes,
   getProjectJoinRequests,
-  unsendJoinRequest
+  unsendJoinRequest,
+  reviewJoinRequest
 } = require('../controllers/projects');
 
 const router = express.Router();
@@ -467,8 +468,6 @@ router.route('/:id/votes')
   .all(fetchProjectMiddleware)
   .post(authenticate,toggleVote)
   .get(getAllVotes)
-
-/**
 /**
  * @swagger
  * /projects/{id}/join-requests:
@@ -680,13 +679,87 @@ router.route('/:id/votes')
  *                 message:
  *                   type: string
  *                   example: Error unsending join request
+ *   patch:
+ *     summary: Review a join request (approve or decline)
+ *     tags: [JoinRequests]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The project ID
+ *       - in: path
+ *         name: requestId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The join request ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [approve, decline]
+ *                 example: approve
+ *     responses:
+ *       200:
+ *         description: Join request reviewed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Request approved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     request:
+ *                       $ref: '#/components/schemas/ProjectRequest'
+ *       400:
+ *         description: Invalid action provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid action
+ *       404:
+ *         description: Join request not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Join request not found
  */
 
 router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
   .post(authenticate,sendJoinRequest)
   .get(getProjectJoinRequests)
-  .delete(authenticate,unsendJoinRequest);
+  .delete(authenticate,unsendJoinRequest)
+
+router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
 
 router.use('/:projectId/comments', commentRoutes);
 module.exports = router;
