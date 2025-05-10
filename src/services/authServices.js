@@ -17,15 +17,19 @@ exports.signUp = async (username, email, password) => {
         throw new BadRequestError('Account with this email already exists');
     }
 
+   
+
     const user = new User({
         username: username,
         password: hashedPassword,
         email: email
     });
 
+    const token = jwt.sign({ user: toUserResponseDto(user) }, process.env.JWT_SECRET,  { expiresIn: '1h' });
+
     await user.save();
 
-    return user;
+    return {user, token};
 }
 
 exports.signIn = async (email, password, rememberMe) => {

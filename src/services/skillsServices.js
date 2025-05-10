@@ -4,7 +4,7 @@ const Skill = require('../models/skill')
 
 exports.getAllSkills = async () => {
 
-    const skills = await Skill.find({})
+    const skills = await Skill.find({}).sort({ name: 1 })
     if (skills.length == 0) {
         throw new NotFoundError('No skills found')
     }

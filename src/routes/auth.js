@@ -99,6 +99,9 @@ router.post('/register', validateRequest(registerSchema), authController.signUp)
  *               password:
  *                 type: string
  *                 example: "MyStrongPassword123"
+ *               rememberMe:
+ *                 type: boolean
+ *                 example: "true"
  *     responses:
  *       200:
  *         description: Successful login

@@ -6,7 +6,12 @@ const { toUserResponseDto } = require('../dtos/user.dto')
 exports.signUp = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
-        const user = await authService.signUp(username, email, password);
+        const {token ,user} = await authService.signUp(username, email, password);
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Lax'
+        });
         res.status(201).json({
             success : true,
             message: 'User Created Successfully',
