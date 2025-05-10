@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { type } = require('../validators/commentValidator');
 const Schema = mongoose.Schema;
 
 const projectSchema = new Schema(
@@ -52,6 +53,10 @@ const projectSchema = new Schema(
             type: [Schema.Types.ObjectId],
             ref: "User",
             default : []
+        },
+        likesCount : {
+            type: Number,
+            default:0
         }
     },
     {
@@ -65,6 +70,10 @@ projectSchema.virtual('teamNum').get(function () {
 });
 projectSchema.virtual('availableSpots').get(function () {
     return this.reqSpots - (this.teamMembers ? this.teamMembers.length : 0);
+});
+projectSchema.pre('save', function (next) {
+    this.likesCount = this.likes.length;
+    next();
 });
 // Create a text index for searching
 projectSchema.index({ title: 'text', description: 'text'});
