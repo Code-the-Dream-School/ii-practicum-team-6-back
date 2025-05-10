@@ -166,7 +166,7 @@ const toggleVote = async (req, res, next) => {
             res.status(200).json({
                 success: true,
                 message: "Project unliked",
-                data: { likesCount: project.likesCount }
+                data: { likesCount: project.likes.length }
             })
         }
         else{
@@ -176,7 +176,7 @@ const toggleVote = async (req, res, next) => {
             res.status(200).json({
                 success: true,
                 message: "Project liked",
-                data: { likesCount: project.likesCount}
+                data: { likesCount: project.likes.length}
             });
         }
         
@@ -187,7 +187,7 @@ const toggleVote = async (req, res, next) => {
 
 const getAllVotes = async (req, res, next) => {
     const project = req.project;
-    const votesCount = project.likesCount;
+    const votesCount = project.likes.length;
     res.status(200).json({
         success: true,
         message: "Project likes fetched successfully",
