@@ -36,6 +36,9 @@ const upload = require('../middleware/uploadMiddleware')
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: Users Fetched Successfully
@@ -115,11 +118,17 @@ router.get('/', authenticate, userController.getAllUsers)
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: User Fetched Successfully
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 data :
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
  *       400:
  *         description: Error fetching User
  *         content:
@@ -253,8 +262,11 @@ router.delete('/me', authenticate, userController.deleteMyProfile)
  *                 message:
  *                   type: string
  *                   example: User Updated Successfully
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 data :
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
  *       401:
  *         description: Not Authorized
  *         content:
@@ -304,7 +316,7 @@ router.patch('/me', authenticate, userController.updateMyProfile)
  *       - cookieAuth: []
  *     responses:
  *       200:
- *         description: Avatar deleted Successfully
+ *         description: Avatar uploaded Successfully
  *         content:
  *           application/json:
  *             schema:
