@@ -51,7 +51,7 @@ const options = {
             reqSpots: { type: 'integer', example: 5 },
             reqSkills: {
               type: 'array',
-              items: { type: 'string', example: ['React', 'TypeScript', 'Vite'] },
+              items: { $ref: '#/components/schemas/Skills' }
             },
             teamMembers: {
               type: 'array',
@@ -81,7 +81,7 @@ const options = {
             reqSpots: { type: 'integer', example: 5 },
             reqSkills: {
               type: 'array',
-              items: { type: 'string', example: ['React', 'TypeScript', 'Vite'] },
+              items: { $ref: '#/components/schemas/Skills' }
             },
             teamMembers: {
               type: 'array',

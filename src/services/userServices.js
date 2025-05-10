@@ -1,9 +1,12 @@
 const User = require('../models/user')
 const Skill = require('../models/skill')
+const Project = require('../models/project')
 require('dotenv').config();
 const BadRequestError = require('../errors/bad-request')
 const NotFoundError = require('../errors/not-found')
 const { cloudinary } = require('../utils/cloudinaryStorage');
+const ProjectRequest = require('../models/projectRequest')
+
 
 
 exports.getAllUsers = async (page, limit) => {
@@ -106,5 +109,23 @@ exports.deleteAvatar = async (userId) => {
         throw new BadRequestError('No avatar to delete')
 
     }
+}
+
+exports.myProjects = async (userId) => {
+
+    const projects = await Project.find({ 'teamMembers.user': userId }).populate('reqSkills', 'name -_id')
+    if (!projects) {
+        throw new BadRequestError('No projects')
+    }
+    return projects
+}
+
+exports.myProjectsRequests = async (userId) => {
+
+    const projectsRequests = await ProjectRequest.find({ userId: userId })
+    if (!projectsRequests) {
+        throw new BadRequestError('No project requests')
+    }
+    return projectsRequests
 }
 

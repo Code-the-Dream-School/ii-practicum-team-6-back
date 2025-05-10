@@ -1,6 +1,7 @@
 require('dotenv').config();
 const userService = require('../services/userServices')
 const { toUsersResponseDto, toUserResponseDto } = require('../dtos/user.dto');
+const { toProjectResponseDto, toProjectsResponseDto } = require('../dtos/project.dto');
 const BadRequestError = require('../errors/bad-request')
 
 
@@ -112,6 +113,36 @@ exports.deleteAvatar = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'Avatar deleted Successfully',
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.myProjects = async (req, res, next) => {
+    
+    try {
+        const projects = await userService.myProjects(req.user.id)
+
+        res.status(200).json({
+            success: true,
+            message: 'My Projects fetched successfully',
+            data: { projects: toProjectsResponseDto(projects) }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+exports.myProjectRequests = async (req, res, next) => {
+    
+    try {
+        const projectRequests = await userService.myProjectsRequests(req.user.id)
+
+        res.status(200).json({
+            success: true,
+            message: 'My Project Requests fetched successfully',
+            data: { projects: projectRequests }
         })
     } catch (error) {
         next(error)
