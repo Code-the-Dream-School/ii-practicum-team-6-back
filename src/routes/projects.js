@@ -26,7 +26,7 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
 
 /**
  * @swagger
- * projects/myProjects:
+ * /projects/myProjects:
  *   get:
  *     summary: get my Projects
  *     tags:
@@ -90,11 +90,18 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
 
 /**
  * @swagger
- * projects/myProjectRequests:
+ * /projects/myProjectRequests:
  *   get:
  *     summary: get my Project Requests
  *     tags:
  *       - Projects
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [approved, declined, pending]  
+ *         description: Filter project requests by status 
  *     security:
  *       - cookieAuth: []
  *     responses:
