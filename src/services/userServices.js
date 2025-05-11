@@ -13,7 +13,7 @@ exports.getAllUsers = async (page, limit) => {
 
     const startIndex = (page - 1) * limit;
 
-    const users = await User.find().populate('skills', 'name').skip(startIndex).limit(limit);
+    const users = await User.find().populate('skills', 'name ').skip(startIndex).limit(limit);
     const total = await User.countDocuments();
 
     const pages = Math.ceil(total / limit);
@@ -30,7 +30,7 @@ exports.getAllUsers = async (page, limit) => {
 
 exports.getUserById = async (userId) => {
 
-    const user = await User.findById(userId).populate('skills', 'name');
+    const user = await User.findById(userId).populate('skills', 'name ');
 
     if (!user) {
         throw new BadRequestError('Error fetching User');
@@ -42,7 +42,7 @@ exports.getUserById = async (userId) => {
 
 exports.updateMyProfile = async (userId, username, bio, skills) => {
 
-    const currentUser = await User.findById(userId).populate('skills', 'name')
+    const currentUser = await User.findById(userId).populate('skills', 'name ')
 
     if (!currentUser) {
         throw new NotFoundError('User not found')
@@ -119,10 +119,19 @@ exports.myProjects = async (userId) => {
     }
     return projects
 }
+exports.myCreatedProjects = async (userId) => {
+
+    const projects = await Project.find({ createdBy: userId }).populate('reqSkills', 'name -_id')
+    if (!projects || projects.length === 0) {
+        throw new BadRequestError('No projects')
+    }
+    return projects
+}
 
 exports.myProjectsRequests = async (userId, status) => {
 
-    const projectsRequests = await ProjectRequest.find({ userId: userId , status : status})
+    const projectsRequests = await ProjectRequest.find({ userId: userId, status: status })
+
     if (!projectsRequests || projectsRequests.length === 0) {
         throw new BadRequestError('No project requests')
     }
