@@ -114,16 +114,16 @@ exports.deleteAvatar = async (userId) => {
 exports.myProjects = async (userId) => {
 
     const projects = await Project.find({ 'teamMembers.user': userId }).populate('reqSkills', 'name -_id')
-    if (!projects) {
+    if (!projects || projects.length === 0) {
         throw new BadRequestError('No projects')
     }
     return projects
 }
 
-exports.myProjectsRequests = async (userId) => {
+exports.myProjectsRequests = async (userId, status) => {
 
-    const projectsRequests = await ProjectRequest.find({ userId: userId })
-    if (!projectsRequests) {
+    const projectsRequests = await ProjectRequest.find({ userId: userId , status : status})
+    if (!projectsRequests || projectsRequests.length === 0) {
         throw new BadRequestError('No project requests')
     }
     return projectsRequests

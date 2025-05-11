@@ -137,8 +137,9 @@ exports.myProjects = async (req, res, next) => {
 exports.myProjectRequests = async (req, res, next) => {
     
     try {
-        const projectRequests = await userService.myProjectsRequests(req.user.id)
-
+        const { status } = req.query;
+        const projectRequests = await userService.myProjectsRequests(req.user.id, status)
+        
         res.status(200).json({
             success: true,
             message: 'My Project Requests fetched successfully',
