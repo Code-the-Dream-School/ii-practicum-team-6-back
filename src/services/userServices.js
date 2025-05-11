@@ -131,6 +131,7 @@ exports.myCreatedProjects = async (userId) => {
 exports.myProjectsRequests = async (userId, status) => {
 
     const projectsRequests = await ProjectRequest.find({ userId: userId, status: status })
+
     if (!projectsRequests || projectsRequests.length === 0) {
         throw new BadRequestError('No project requests')
     }
