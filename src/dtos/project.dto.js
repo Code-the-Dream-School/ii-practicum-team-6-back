@@ -10,9 +10,7 @@ function toProjectResponseDto(project) {
     likes: project.likes,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-    reqSkills: project.reqSkills?.map(skill => ({
-      name: skill.name
-    })) || [],
+    reqSkills: project.reqSkills?.map(skill =>  skill.name) || [],
     teamMembers: project.teamMembers?.map(member => ({
       user: typeof member.user === 'object' ? member.user._id?.toString() : member.user,
       role: member.role

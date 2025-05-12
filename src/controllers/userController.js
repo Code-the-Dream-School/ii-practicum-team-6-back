@@ -120,28 +120,31 @@ exports.deleteAvatar = async (req, res, next) => {
 }
 
 exports.myProjects = async (req, res, next) => {
-    
     try {
-        const projects = await userService.myProjects(req.user.id)
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const {projects, totalCount , totalPages} = await userService.myProjects(req.user.id, page, limit)
 
         res.status(200).json({
             success: true,
             message: 'My Projects fetched successfully',
-            data: { projects: toProjectsResponseDto(projects) }
+            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPage : totalPages , currentPage : page }
         })
     } catch (error) {
         next(error)
     }
 }
 exports.myCreatedProjects = async (req, res, next) => {
-    
     try {
-        const projects = await userService.myProjects(req.user.id)
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const {projects , totalCount , totalPages} = await userService.myCreatedProjects(req.user.id, page, limit)
+        console.log(totalCount)
 
         res.status(200).json({
             success: true,
             message: 'My Created Projects fetched successfully',
-            data: { projects: projects }
+            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPage : totalPages , currentPage : page }
         })
     } catch (error) {
         next(error)
@@ -149,15 +152,17 @@ exports.myCreatedProjects = async (req, res, next) => {
 }
 
 exports.myProjectRequests = async (req, res, next) => {
-    
+    console.log(req.user.id + ' 3')
     try {
         const { status } = req.query;
-        const projectRequests = await userService.myProjectsRequests(req.user.id, status)
-        
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const projectRequests = await userService.myProjectsRequests(req.user.id, status, page, limit)
+
         res.status(200).json({
             success: true,
             message: 'My Project Requests fetched successfully',
-            data: { projects: projectRequests }
+            data: { projects: projectRequests.data, totalCount: projectRequests.totalCount, totalPages: projectRequests.totalPages, currentPage: projectRequests.currentPage, },
         })
     } catch (error) {
         next(error)
