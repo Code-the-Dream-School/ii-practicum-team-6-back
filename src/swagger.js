@@ -111,7 +111,7 @@ const options = {
         Skills: {
           type: 'object',
           properties: {
-            name: { type: 'string', example: 'JavaScript' },
+            name: { type: 'string', example: [ "React", "Node.js" ] },
           }
         },
         User: {

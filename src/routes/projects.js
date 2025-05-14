@@ -240,8 +240,10 @@ router.get('/myCreatedProjects', authenticate, userController.myProjects)
 *     summary: Get all projects
 *     tags: [Projects]
 *     description: |
+*       Returns a list of projects with optional filters.
 *       Example request:
-*       GET /projects?limit=5&page=1&sort=mostLiked&search=collaboration
+*       GET /projects?limit=5&page=1&sort=mostLiked&search=collaboration&skills=React&skills=Node.js
+*       - When `skills` are provided, only projects that require **all** specified skills will be returned.
 *     parameters:
 *       - in: query
 *         name: limit
@@ -272,6 +274,17 @@ router.get('/myCreatedProjects', authenticate, userController.myProjects)
 *         required: false
 *         description: Keyword to search in title or description
 *         example: collaboration
+*       - in: query
+*         name: skills
+*         schema:
+*           type: array
+*           items:
+*             type: string
+*         required: false
+*         description: |
+*           Array of skill names. Projects must require **all** listed skills to match.
+*           Can be passed as repeated query keys (`skills=React&skills=Node.js`) or as a comma-separated string (`skills=React,Node.js`).
+*         example: ["React", "Node.js"]
 *     responses:
 *       200:
 *         description: List of all projects
