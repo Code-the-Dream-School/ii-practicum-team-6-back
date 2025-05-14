@@ -112,23 +112,30 @@ exports.deleteAvatar = async (userId) => {
     }
 }
 
-exports.myProjects = async (userId,  page, limit) => {
-    const projects = await Project.find({ 'teamMembers.user': userId }).skip((page - 1) * limit).limit(limit).populate('reqSkills', 'name -_id')
+exports.myProjects = async (userId, page, limit) => {
+    const projects = await Project.find({ 'teamMembers.user': userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
     const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
     const totalPages = Math.ceil(totalCount / limit)
     if (!projects || projects.length === 0) {
         throw new BadRequestError('No projects')
     }
-    return {projects , totalCount , totalPages}
+    return { projects, totalCount, totalPages }
 }
 exports.myCreatedProjects = async (userId, page, limit) => {
-    const projects = await Project.find({ createdBy: userId }).skip((page - 1) * limit).limit(limit).populate('reqSkills', 'name -_id')
+    const projects = await Project.find({ createdBy: userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
+
     const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
     const totalPages = Math.ceil(totalCount / limit)
     if (!projects || projects.length === 0) {
         throw new BadRequestError('No projects')
     }
-    return {projects , totalCount , totalPages}
+    return { projects, totalCount, totalPages }
 }
 
 exports.myProjectsRequests = async (userId, status, page, limit) => {
@@ -137,7 +144,7 @@ exports.myProjectsRequests = async (userId, status, page, limit) => {
     if (status) {
         filter.status = status;
     }
-    
+
     const projectsRequests = paginationProjectRequest(ProjectRequest, filter, page, limit)
 
 

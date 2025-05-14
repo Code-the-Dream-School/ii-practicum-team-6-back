@@ -16,7 +16,7 @@ const getAllProjects = async (req, res, next) => {
         if (search) {
             filter = { $text: { $search: search } };
         }
-        let sortOption = { createdAt: 1 }; 
+        let sortOption = { createdAt: 1 };
 
         if (sort === 'mostLiked') {
             sortOption = { likesCount: -1 };
@@ -33,7 +33,7 @@ const getAllProjects = async (req, res, next) => {
                 .lean(),
             Project.countDocuments(filter)
         ]);
-        
+
         res.status(200).json({
             success: true,
             message: 'Projects fetched successfully',
@@ -57,27 +57,29 @@ const createProject = async (req, res, next) => {
         const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name').lean();
         const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
         const skillIds = sortedSkills.map(skill => skill._id);
-    
+
         const newProject = await Project.create({
             title,
             description,
             createdBy,
             reqSpots,
-            reqSkills: skillIds ,
+            reqSkills: skillIds,
             teamMembers: [{ user: createdBy, role: 'admin' }]
         })
         // Populate skills by name 
         await newProject.populate('reqSkills', 'name');
 
         const skillNames = (newProject.reqSkills || []).map(skill => skill.name)
-  
+
         res.status(201).json({
             success: true,
             message: "Project created successfully",
-            data: { project: {
-                ...newProject.toObject(),
-                reqSkills:skillNames
-            } }
+            data: {
+                project: {
+                    ...newProject.toObject(),
+                    reqSkills: skillNames
+                }
+            }
         });
     } catch (error) {
         next(error);
@@ -88,14 +90,14 @@ const getProjectById = async (req, res, next) => {
     try {
         const project = req.project; //comes from middleware
         const comments = await getAllCommentsByTheProjectId(project._id)
-        
-        await project.populate('reqSkills','name')
-        const skillsname = (project.reqSkills || []).map(skill=>skill.name)
+
+        await project.populate('reqSkills', 'name')
+        const skillsname = (project.reqSkills || []).map(skill => skill.name)
 
         const projectWithComments = {
-            ...project.toObject(), 
+            ...project.toObject(),
             comments,
-            reqSkills:skillsname
+            reqSkills: skillsname
         }
         res.status(200).json({
             success: true,
@@ -109,40 +111,42 @@ const getProjectById = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
     try {
-      const createdBy = req.user.id;
-  
-      if (req.project.createdBy.toString() !== createdBy) {
-        throw new ForbiddenError("You are not authorized to update this project");
-      }
-  
-      const { reqSkills, ...otherFields } = req.body;
+        const createdBy = req.user.id;
 
-      Object.assign(req.project, otherFields);
-  
+        if (req.project.createdBy.toString() !== createdBy) {
+            throw new ForbiddenError("You are not authorized to update this project");
+        }
+
+        const { reqSkills, ...otherFields } = req.body;
+
+        Object.assign(req.project, otherFields);
+
         const skills = await Skill.find({ name: { $in: reqSkills } }).select('_id name').lean();
         const sortedSkills = skills.sort((a, b) => a.name.localeCompare(b.name));
         const skillIds = sortedSkills.map(skill => skill._id);
         req.project.reqSkills = skillIds;
 
-      const updatedProject = await req.project.save();
+        const updatedProject = await req.project.save();
 
-      //return skills name
-      await updatedProject.populate('reqSkills','name')
-      const skillNames = (updatedProject.reqSkills || []).map(skill => skill.name) 
+        //return skills name
+        await updatedProject.populate('reqSkills', 'name')
+        const skillNames = (updatedProject.reqSkills || []).map(skill => skill.name)
 
-      res.status(200).json({
-        success: true,
-        message: "Project updated successfully",
-        data: { project: {
-            ...updatedProject.toObject(),
-            reqSkills:skillNames
-        } }
-      });
-  
+        res.status(200).json({
+            success: true,
+            message: "Project updated successfully",
+            data: {
+                project: {
+                    ...updatedProject.toObject(),
+                    reqSkills: skillNames
+                }
+            }
+        });
+
     } catch (error) {
-      next(error);
+        next(error);
     }
-  };
+};
 
 const deleteProject = async (req, res, next) => {
     try {
@@ -190,7 +194,7 @@ const toggleVote = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const project = req.project;
-        
+
         //remove the vote if user double click the button
         if (project.likes.includes(userId)) {
             project.likes = project.likes.filter(id => id.toString() !== userId.toString())
@@ -201,21 +205,21 @@ const toggleVote = async (req, res, next) => {
                 data: { likesCount: project.likes.length }
             })
         }
-        else{
+        else {
             project.likes.push(userId);
             await project.save();
-        
+
             res.status(200).json({
                 success: true,
                 message: "Project liked",
-                data: { likesCount: project.likes.length}
+                data: { likesCount: project.likes.length }
             });
         }
-        
+
     } catch (error) {
-      next(error); 
+        next(error);
     }
-  };
+};
 
 const getAllVotes = async (req, res, next) => {
     const project = req.project;
@@ -235,23 +239,23 @@ const sendJoinRequest = async (req, res, next) => {
         const { joinMessage } = req.body;
         const project = req.project;
         const projectId = project._id;
-    
+
         if (!joinMessage) {
             throw new BadRequestError('Join message is required');
         }
-    
+
         // Check if user is already a team member
         const isMember = project.teamMembers.some(member => member.user.toString() === userId);
         if (isMember) {
             throw new BadRequestError('User is already a project member.');
         }
-    
+
         // Check if a join request already exists
         const existingRequest = await ProjectRequest.findOne({ projectId, userId });
         if (existingRequest) {
             return res.status(400).json({
-            success: false,
-            message: 'You have already sent a join request for this project.',
+                success: false,
+                message: 'You have already sent a join request for this project.',
             });
         }
         // Create a new join request
@@ -266,7 +270,7 @@ const sendJoinRequest = async (req, res, next) => {
             data: { request: newRequest }
         });
     } catch (error) {
-      next(error);
+        next(error);
     }
 };
 const unsendJoinRequest = async (req, res, next) => {
@@ -287,73 +291,89 @@ const unsendJoinRequest = async (req, res, next) => {
     }
 }
 
-const getProjectJoinRequests = async(req,res, next)=>{
+const getProjectJoinRequests = async (req, res, next) => {
     try {
         const project = req.project
         const projectId = req.project._id;
         const userId = req.user.id;
 
-        if(project.createdBy === userId){
-            const requests = await ProjectRequest.find({projectId});
-            if(!requests){
+        if (project.createdBy.toString() === userId) {
+            const requests = await ProjectRequest.find({ projectId }).populate('userId', 'username avatar');
+            if (!requests) {
                 throw new NotFoundError('There is no request for this project')
             }
+
+            const flattenedRequests = requests.map(req => {
+                const user = req.userId;
+                return {
+                    _id: req._id,
+                    projectId: req.projectId,
+                    status: req.status,
+                    joinMessage: req.joinMessage,
+                    createdAt: req.createdAt,
+                    updatedAt: req.updatedAt,
+                    userId: user._id,
+                    username: user.username,
+                    avatar: user.avatar.url
+                };
+            });
+
             res.status(200).json({
                 success: true,
                 message: "Project requests fetched successfuly",
-                data: { request: requests }
+                data: { request: flattenedRequests }
             });
         }
-        else{
+        else {
             throw new ForbiddenError("You are not authorized to view join requests for this project");
         }
-        
+
     } catch (error) {
         next(error)
     }
 }
 
-const reviewJoinRequest = async(req,res,next)=>{
-    try {        
-        const {action} = req.body;
-        const {requestId} = req.params
+const reviewJoinRequest = async (req, res, next) => {
+    try {
+        const { action } = req.body;
+        const { requestId } = req.params
         const request = await ProjectRequest.findById(requestId)
-        if(!request){
+        if (!request) {
             throw new NotFoundError('Join request not found')
         }
-        if(action === 'approve'){
+        if (action === 'approve') {
             request.status = 'approved'
             await Project.findByIdAndUpdate(request.projectId, {
                 $push: { teamMembers: { user: request.userId, role: "member" } }
-              });
+            });
         }
-        else if(action === 'decline'){
+        else if (action === 'decline') {
             request.status = 'declined'
             //check if the user is already a member of the project remove it
             const project = await Project.findById(request.projectId)
             const isMember = project.teamMembers.some(
                 (member) => member.user.toString() === request.userId.toString()
             )
-            if(isMember){
-                await Project.findByIdAndUpdate(request.projectId,{
-                    $pull:{teamMembers: {user:request.userId}}
+            if (isMember) {
+                await Project.findByIdAndUpdate(request.projectId, {
+                    $pull: { teamMembers: { user: request.userId } }
                 })
             }
         }
-        else{
+        else {
             throw new BadRequestError('Invalid action')
         }
         await request.save();
 
         res.status(200).json({
-        success: true,
-        message: `Request ${action}ed successfully`,
-        data: { request }
+            success: true,
+            message: `Request ${action}ed successfully`,
+            data: { request }
         });
     } catch (error) {
         next(error)
     }
-    
+
 
 }
 

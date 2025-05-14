@@ -128,7 +128,7 @@ exports.myProjects = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'My Projects fetched successfully',
-            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPage : totalPages , currentPage : page }
+            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPages : totalPages , currentPage : page }
         })
     } catch (error) {
         next(error)
@@ -144,7 +144,7 @@ exports.myCreatedProjects = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'My Created Projects fetched successfully',
-            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPage : totalPages , currentPage : page }
+            data: { projects: toProjectsResponseDto(projects) , totalCount : totalCount, totalPages : totalPages , currentPage : page }
         })
     } catch (error) {
         next(error)

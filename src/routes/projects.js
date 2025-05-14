@@ -873,10 +873,40 @@ router.route('/:id/votes')
  *                 data:
  *                   type: object
  *                   properties:
- *                     requests:
+ *                     request:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/ProjectRequest'
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: "6823dc2152725eed0fab613e"
+ *                           projectId:
+ *                             type: string
+ *                             example: "682232a60b0dd494b36bba08"
+ *                           userId:
+ *                             type: string
+ *                             example: "681f2c4f4cbcd6edb27fedb6"
+ *                           username:
+ *                             type: string
+ *                             example: "newname11"
+ *                           avatar:
+ *                             type: string
+ *                             example: ""
+ *                           status:
+ *                             type: string
+ *                             example: "pending"
+ *                           joinMessage:
+ *                             type: string
+ *                             example: "join request"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-05-13T23:56:17.296Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-05-13T23:56:17.296Z"
  *       404:
  *         description: No join requests found for this project
  *         content:
@@ -1046,7 +1076,7 @@ router.route('/:id/votes')
 router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
   .post(authenticate, sendJoinRequest)
-  .get(getProjectJoinRequests)
+  .get(authenticate,getProjectJoinRequests)
   .delete(authenticate, unsendJoinRequest)
 
 router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
