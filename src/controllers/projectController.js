@@ -11,10 +11,21 @@ const getAllProjects = async (req, res, next) => {
         const page = Number(req.query.page) || 1;
         const skip = (page - 1) * limit;
 
-        const { sort, search } = req.query;
+        const { sort, search,skills } = req.query;
         let filter = {};
         if (search) {
             filter = { $text: { $search: search } };
+        }
+       
+        if(skills){
+            const skillNames = Array.isArray(skills) ? skills : skills.split(',').map(s=> s.trim())
+            if(skillNames.length){
+                const skillDocs = await Skill.find({name: {$in : skillNames}}).select('_id')
+                const skillIds = skillDocs.map(skill => skill._id)
+                if(skillIds.length){
+                    filter.reqSkills = {$all:skillIds}
+                }
+            }
         }
         let sortOption = { createdAt: 1 }; 
 
