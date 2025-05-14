@@ -6,6 +6,7 @@ const BadRequestError = require('../errors/bad-request')
 const NotFoundError = require('../errors/not-found')
 const { cloudinary } = require('../utils/cloudinaryStorage');
 const ProjectRequest = require('../models/projectRequest')
+const { paginationProjectRequest } = require('../utils/pagination')
 
 
 
@@ -111,26 +112,41 @@ exports.deleteAvatar = async (userId) => {
     }
 }
 
-exports.myProjects = async (userId) => {
-
-    const projects = await Project.find({ 'teamMembers.user': userId }).populate('reqSkills', 'name -_id')
+exports.myProjects = async (userId, page, limit) => {
+    const projects = await Project.find({ 'teamMembers.user': userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
+    const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
+    const totalPages = Math.ceil(totalCount / limit)
     if (!projects || projects.length === 0) {
         throw new BadRequestError('No projects')
     }
-    return projects
+    return { projects, totalCount, totalPages }
 }
-exports.myCreatedProjects = async (userId) => {
+exports.myCreatedProjects = async (userId, page, limit) => {
+    const projects = await Project.find({ createdBy: userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
 
-    const projects = await Project.find({ createdBy: userId }).populate('reqSkills', 'name -_id')
+    const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
+    const totalPages = Math.ceil(totalCount / limit)
     if (!projects || projects.length === 0) {
         throw new BadRequestError('No projects')
     }
-    return projects
+    return { projects, totalCount, totalPages }
 }
 
-exports.myProjectsRequests = async (userId, status) => {
+exports.myProjectsRequests = async (userId, status, page, limit) => {
 
-    const projectsRequests = await ProjectRequest.find({ userId: userId, status: status })
+    const filter = { userId };
+    if (status) {
+        filter.status = status;
+    }
+
+    const projectsRequests = paginationProjectRequest(ProjectRequest, filter, page, limit)
+
 
     if (!projectsRequests || projectsRequests.length === 0) {
         throw new BadRequestError('No project requests')

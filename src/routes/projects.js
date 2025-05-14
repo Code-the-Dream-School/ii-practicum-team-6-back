@@ -1,8 +1,10 @@
 const express = require('express');
 const fetchProjectMiddleware = require('../middleware/fetchProjectMiddleware');
 const validate = require('../middleware/projectValidateMiddleware');
+const { validateRequest } = require('../middleware/validateRequest')
 const { projectCreateValidator } = require('../validators/projectCreateValidator');
-const {projectUpdateValidator} = require('../validators/projectUpdateValidator')
+const  {myProjectRequestValidator} = require('../validators/myProjectRequestValidator')
+const { projectUpdateValidator } = require('../validators/ProjectUpdateValidator')
 const userController = require('../controllers/userController')
 const commentRoutes = require('./comments')
 const { authenticate } = require('../middleware/authMiddleware');
@@ -22,8 +24,12 @@ const {
 } = require('../controllers/projectController');
 
 const router = express.Router();
-router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
+router.get('/myProjects', authenticate, userController.myProjects)
+router.get('/myProjectRequests', authenticate, 
+  //validateRequest(myProjectRequestValidator, 'params'),
+   userController.myProjectRequests)
 
+router.get('/myCreatedProjects', authenticate, userController.myCreatedProjects)
 /**
  * @swagger
  * /projects/myProjects:
@@ -31,6 +37,23 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *     summary: get my Projects
  *     tags:
  *       - Projects
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page Number(default 1)
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           minimum: 1
+ *         description: Page Limit (default 10)
  *     security:
  *       - cookieAuth: []
  *     responses:
@@ -48,12 +71,21 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *                   type: string
  *                   example: My Projects fetched successfully
  *                 data:
-*                    type: object
-*                    properties:
-*                      projects:
-*                        type: array
-*                        items:
-*                          $ref: '#/components/schemas/Project'
+ *                    type: object
+ *                    properties:
+ *                      projects:
+ *                        type: array
+ *                        items:
+ *                          $ref: '#/components/schemas/Project'
+ *                 totalCount:
+ *                   type: integer
+ *                   example: 45
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  *       400:
  *         description: No projects
  *         content:
@@ -94,6 +126,23 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *     summary: get my Created Projects
  *     tags:
  *       - Projects
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page Number(default 1)
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           minimum: 1
+ *         description: Page Limit (default 10)
  *     security:
  *       - cookieAuth: []
  *     responses:
@@ -111,12 +160,21 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *                   type: string
  *                   example: My Created Projects fetched successfully
  *                 data:
-*                    type: object
-*                    properties:
-*                      projects:
-*                        type: array
-*                        items:
-*                          $ref: '#/components/schemas/Project'
+ *                   type: object
+ *                   properties:
+ *                     projects:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Project'
+ *                 totalCount:
+ *                   type: integer
+ *                   example: 45
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  *       400:
  *         description: No projects
  *         content:
@@ -164,7 +222,23 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *         schema:
  *           type: string
  *           enum: [approved, declined, pending]  
- *         description: Filter project requests by status 
+ *         description: Filter project requests by status
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page Number(default 1)
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           minimum: 1
+ *         description: Page Limit (default 10) 
  *     security:
  *       - cookieAuth: []
  *     responses:
@@ -182,12 +256,21 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *                   type: string
  *                   example: My Project Requests fetched successfully
  *                 data:
-*                    type: object
-*                    properties:
-*                      projects:
-*                        type: array
-*                        items:
-*                          $ref: '#/components/schemas/ProjectRequest'
+ *                   type: object
+ *                   properties:
+ *                     projects:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ProjectRequest'
+ *                 totalCount:
+ *                   type: integer
+ *                   example: 45
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
+ *                 currentPage:
+ *                   type: integer
+ *                   example: 1
  *       400:
  *         description: No project requests
  *         content:
@@ -222,8 +305,7 @@ router.get('/myProjectRequests', authenticate, userController.myProjectRequests)
  *                   example: Not Authorized
  */
 
-router.get('/myProjects', authenticate, userController.myProjects)
-router.get('/myCreatedProjects', authenticate, userController.myProjects)
+
 
 
 /**
@@ -378,182 +460,182 @@ router.get('/myCreatedProjects', authenticate, userController.myProjects)
 
 router.route('/')
   .get(getAllProjects)
-  .post(authenticate,validate(projectCreateValidator), createProject);
+  .post(authenticate, validate(projectCreateValidator), createProject);
 
- /**
- * @swagger
- * /projects/{id}:
- *   get:
- *     summary: Get a project by ID
- *     tags: [Projects]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project fetched successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     project:
- *                       allOf:
- *                         - $ref: '#/components/schemas/Project'
- *                         - type: object
- *                           properties:
- *                             likesCount:
- *                               type: integer
- *                               description: Number of likes on the project
- *                               example: 1
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error getting the project
- *   patch:
- *     summary: Update a project by ID
- *     tags: [Projects]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ProjectBody' 
- *     responses:
- *       200:
- *         description: Project updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project updated successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     project:
- *                       $ref: '#/components/schemas/Project'
- *       403:
- *         description: Forbidden
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: You are not authorized to update this project
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error updating the project
- *   delete:
- *     summary: Delete a project by ID
- *     tags: [Projects]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Project ID
- *     responses:
- *       200:
- *         description: Project deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Project deleted successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     project:
- *                       $ref: '#/components/schemas/Project'
- *       403:
- *         description: Forbidden
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: You are not authorized to delete this project
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error deleting the project
- */
+/**
+* @swagger
+* /projects/{id}:
+*   get:
+*     summary: Get a project by ID
+*     tags: [Projects]
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: string
+*         required: true
+*         description: Project ID
+*     responses:
+*       200:
+*         description: Project fetched successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Project fetched successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     project:
+*                       allOf:
+*                         - $ref: '#/components/schemas/Project'
+*                         - type: object
+*                           properties:
+*                             likesCount:
+*                               type: integer
+*                               description: Number of likes on the project
+*                               example: 1
+*       500:
+*         description: Server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: false
+*                 message:
+*                   type: string
+*                   example: Error getting the project
+*   patch:
+*     summary: Update a project by ID
+*     tags: [Projects]
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: string
+*         required: true
+*         description: Project ID
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/ProjectBody' 
+*     responses:
+*       200:
+*         description: Project updated successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Project updated successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     project:
+*                       $ref: '#/components/schemas/Project'
+*       403:
+*         description: Forbidden
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: false
+*                 message:
+*                   type: string
+*                   example: You are not authorized to update this project
+*       500:
+*         description: Server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: false
+*                 message:
+*                   type: string
+*                   example: Error updating the project
+*   delete:
+*     summary: Delete a project by ID
+*     tags: [Projects]
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: string
+*         required: true
+*         description: Project ID
+*     responses:
+*       200:
+*         description: Project deleted successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: true
+*                 message:
+*                   type: string
+*                   example: Project deleted successfully
+*                 data:
+*                   type: object
+*                   properties:
+*                     project:
+*                       $ref: '#/components/schemas/Project'
+*       403:
+*         description: Forbidden
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: false
+*                 message:
+*                   type: string
+*                   example: You are not authorized to delete this project
+*       500:
+*         description: Server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 success:
+*                   type: boolean
+*                   example: false
+*                 message:
+*                   type: string
+*                   example: Error deleting the project
+*/
 router.route('/:id')
   .all(fetchProjectMiddleware)
   .get(getProjectById)
-  .delete(authenticate,deleteProject)
-  .patch(authenticate,validate(projectUpdateValidator), updateProject);
+  .delete(authenticate, deleteProject)
+  .patch(authenticate, validate(projectUpdateValidator), updateProject);
 
 //**
 /**
@@ -611,13 +693,13 @@ router.route('/:id')
  *                   example: Error leaving the project
  */
 router.route('/:id/leave')
-  .post(authenticate,fetchProjectMiddleware, leaveProject);
-  /**
- * @swagger
- * tags:
- *   name: Votes
- *   description: 'Endpoints for voting on projects (like, unlike, get vote count).'
- */
+  .post(authenticate, fetchProjectMiddleware, leaveProject);
+/**
+* @swagger
+* tags:
+*   name: Votes
+*   description: 'Endpoints for voting on projects (like, unlike, get vote count).'
+*/
 /**
  * @swagger
  * /projects/{id}/votes:
@@ -685,7 +767,7 @@ router.route('/:id/leave')
  */
 router.route('/:id/votes')
   .all(fetchProjectMiddleware)
-  .post(authenticate,toggleVote)
+  .post(authenticate, toggleVote)
   .get(getAllVotes)
 /**
  * @swagger
@@ -804,10 +886,40 @@ router.route('/:id/votes')
  *                 data:
  *                   type: object
  *                   properties:
- *                     requests:
+ *                     request:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/ProjectRequest'
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: "6823dc2152725eed0fab613e"
+ *                           projectId:
+ *                             type: string
+ *                             example: "682232a60b0dd494b36bba08"
+ *                           userId:
+ *                             type: string
+ *                             example: "681f2c4f4cbcd6edb27fedb6"
+ *                           username:
+ *                             type: string
+ *                             example: "newname11"
+ *                           avatar:
+ *                             type: string
+ *                             example: ""
+ *                           status:
+ *                             type: string
+ *                             example: "pending"
+ *                           joinMessage:
+ *                             type: string
+ *                             example: "join request"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-05-13T23:56:17.296Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-05-13T23:56:17.296Z"
  *       404:
  *         description: No join requests found for this project
  *         content:
@@ -976,9 +1088,9 @@ router.route('/:id/votes')
 
 router.route('/:id/join-requests')
   .all(fetchProjectMiddleware)
-  .post(authenticate,sendJoinRequest)
-  .get(getProjectJoinRequests)
-  .delete(authenticate,unsendJoinRequest)
+  .post(authenticate, sendJoinRequest)
+  .get(authenticate,getProjectJoinRequests)
+  .delete(authenticate, unsendJoinRequest)
 
 router.route('/:id/join-requests/:requestId').patch(reviewJoinRequest)
 
