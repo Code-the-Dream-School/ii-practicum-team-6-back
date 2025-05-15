@@ -2,6 +2,7 @@ const Project = require('../models/project')
 const ProjectRequest = require('../models/projectRequest')
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors')
 const { getAllCommentsByTheProjectId } = require('../services/commentServices')
+const { toProjectResponseDto, toProjectsResponseDto } = require('../dtos/project.dto');
 const Skill = require('../models/skill')
 
 
@@ -30,6 +31,7 @@ const getAllProjects = async (req, res, next) => {
                 .skip(skip)
                 .limit(limit)
                 .populate('reqSkills', 'name')
+                .populate('teamMembers.user', 'username avatar.url')
                 .lean(),
             Project.countDocuments(filter)
         ]);
@@ -38,7 +40,8 @@ const getAllProjects = async (req, res, next) => {
             success: true,
             message: 'Projects fetched successfully',
             data: {
-                projects,
+                projects: toProjectsResponseDto(projects),
+                //projects,
                 numberOfProjects,
                 currentPage: page,
                 totalPages: Math.ceil(numberOfProjects / limit),
@@ -67,7 +70,10 @@ const createProject = async (req, res, next) => {
             teamMembers: [{ user: createdBy, role: 'admin' }]
         })
         // Populate skills by name 
-        await newProject.populate('reqSkills', 'name');
+        await newProject.populate([
+            { path: 'reqSkills', select: 'name' },
+            { path: 'teamMembers.user', select: 'username avatar.url' }
+        ]);
 
         const skillNames = (newProject.reqSkills || []).map(skill => skill.name)
 
@@ -75,10 +81,7 @@ const createProject = async (req, res, next) => {
             success: true,
             message: "Project created successfully",
             data: {
-                project: {
-                    ...newProject.toObject(),
-                    reqSkills: skillNames
-                }
+                project: toProjectResponseDto(newProject),
             }
         });
     } catch (error) {
@@ -89,20 +92,20 @@ const createProject = async (req, res, next) => {
 const getProjectById = async (req, res, next) => {
     try {
         const project = req.project; //comes from middleware
-        const comments = await getAllCommentsByTheProjectId(project._id)
+        // const comments = await getAllCommentsByTheProjectId(project._id)
 
-        await project.populate('reqSkills', 'name')
-        const skillsname = (project.reqSkills || []).map(skill => skill.name)
 
-        const projectWithComments = {
-            ...project.toObject(),
-            comments,
-            reqSkills: skillsname
-        }
+        // const skillsname = (project.reqSkills || []).map(skill => skill.name)
+
+        // const projectWithComments = {
+        //     ...project.toObject(),
+        //     comments,
+        //     reqSkills: skillsname
+        // }
         res.status(200).json({
             success: true,
             message: "Project fetched successfully",
-            data: { project: projectWithComments }
+            data: { project: toProjectResponseDto(project) }
         });
     } catch (error) {
         next(error);
@@ -135,12 +138,13 @@ const updateProject = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "Project updated successfully",
-            data: {
-                project: {
-                    ...updatedProject.toObject(),
-                    reqSkills: skillNames
-                }
-            }
+            data: { project: toProjectResponseDto(updatedProject) }
+            // data: {
+            //     project: {
+            //         ...updatedProject.toObject(),
+            //         reqSkills: skillNames
+            //     }
+            // }
         });
 
     } catch (error) {
