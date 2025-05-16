@@ -51,7 +51,7 @@ const options = {
             reqSpots: { type: 'integer', example: 5 },
             reqSkills: {
               type: 'array',
-              items: { type: 'string', example: '660a3aabc32c7f5320e9a4e9' },
+              items: { $ref: '#/components/schemas/Skills' }
             },
             teamMembers: {
               type: 'array',
@@ -81,7 +81,7 @@ const options = {
             reqSpots: { type: 'integer', example: 5 },
             reqSkills: {
               type: 'array',
-              items: { type: 'string', example: '660a3aabc32c7f5320e9a4e9' },
+              items: { $ref: '#/components/schemas/Skills' }
             },
             teamMembers: {
               type: 'array',
@@ -108,12 +108,10 @@ const options = {
             updatedAt: { type: 'string', example: '2024-04-08T13:00:00Z' },
           },
         },
-        Skill: {
+        Skills: {
           type: 'object',
           properties: {
-            id: { type: 'string', example: '661b88eeb2c55e5b2aa423ef' },
-            name: { type: 'string', example: 'JavaScript' },
-
+            name: { type: 'string', example: [ "React", "Node.js" ] },
           }
         },
         User: {
@@ -123,10 +121,16 @@ const options = {
             username: { type: 'string', example: 'johndoe' },
             email: { type: 'string', example: 'johndoe@example.com' },
             bio: { type: 'string', example: 'Full-stack developer with a passion for clean code.' },
-            avatar: { type: 'string', example: 'https://cdn.example.com/avatars/val.jpg' },
+            avatar: {
+              type: 'object',
+              properties: {
+                url: { type: 'string', example: 'https://res.cloudinary.com/dvgigti2y/image/upload/v1746872405/avatars/avatar_1746872402328.jpg' },
+                public_id: { type: 'string', example: 'avatars/avatar_1746872402328' }
+              }
+            },
             skills: {
               type: 'array',
-              items: { $ref: '#/components/schemas/Skill' }
+              items: { $ref: '#/components/schemas/Skills' }
             },
             projectsIds: {
               type: 'array',
@@ -140,7 +144,7 @@ const options = {
 
     },
   },
-  apis: [path.join(__dirname, './routes/*.js')], // path to your route files with swagger annotations
+  apis: [path.join(__dirname, './routes/*.js')], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);

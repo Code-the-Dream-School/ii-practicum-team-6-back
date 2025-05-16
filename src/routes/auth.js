@@ -48,11 +48,17 @@ const resetPasswordSchema = require('../validators/resetPasswordValidator');
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: User Created Successfully
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user: 
+ *                       $ref: '#/components/schemas/User'
  *       400:
  *         description: Account with this email already exists
  *         content:
@@ -93,6 +99,9 @@ router.post('/register', validateRequest(registerSchema), authController.signUp)
  *               password:
  *                 type: string
  *                 example: "MyStrongPassword123"
+ *               rememberMe:
+ *                 type: boolean
+ *                 example: "true"
  *     responses:
  *       200:
  *         description: Successful login
@@ -101,11 +110,17 @@ router.post('/register', validateRequest(registerSchema), authController.signUp)
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: "Authentication Successful"
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 data :
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
  *       401:
  *         description: Authentication failed. Wrong email or password.
  *         content:
@@ -141,6 +156,9 @@ router.post('/login', validateRequest(loginSchema), authController.signIn)
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: Users Loged out Successfully
@@ -181,11 +199,17 @@ router.post('/logout', authController.signOut)
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *                 message:
  *                   type: string
  *                   example: Authentication Successfull
- *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
  *       401:
  *         description: Not authorized
  *         content:

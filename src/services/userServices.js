@@ -1,16 +1,20 @@
 const User = require('../models/user')
 const Skill = require('../models/skill')
+const Project = require('../models/project')
 require('dotenv').config();
 const BadRequestError = require('../errors/bad-request')
 const NotFoundError = require('../errors/not-found')
 const { cloudinary } = require('../utils/cloudinaryStorage');
+const ProjectRequest = require('../models/projectRequest')
+const { paginationProjectRequest } = require('../utils/pagination')
+
 
 
 exports.getAllUsers = async (page, limit) => {
 
     const startIndex = (page - 1) * limit;
 
-    const users = await User.find().populate('skills', 'name').skip(startIndex).limit(limit);
+    const users = await User.find().populate('skills', 'name ').skip(startIndex).limit(limit);
     const total = await User.countDocuments();
 
     const pages = Math.ceil(total / limit);
@@ -27,7 +31,7 @@ exports.getAllUsers = async (page, limit) => {
 
 exports.getUserById = async (userId) => {
 
-    const user = await User.findById(userId).populate('skills', 'name');
+    const user = await User.findById(userId).populate('skills', 'name ');
 
     if (!user) {
         throw new BadRequestError('Error fetching User');
@@ -39,7 +43,7 @@ exports.getUserById = async (userId) => {
 
 exports.updateMyProfile = async (userId, username, bio, skills) => {
 
-    const currentUser = await User.findById(userId).populate('skills', 'name')
+    const currentUser = await User.findById(userId).populate('skills', 'name ')
 
     if (!currentUser) {
         throw new NotFoundError('User not found')
@@ -106,5 +110,47 @@ exports.deleteAvatar = async (userId) => {
         throw new BadRequestError('No avatar to delete')
 
     }
+}
+
+exports.myProjects = async (userId, page, limit) => {
+    const projects = await Project.find({ 'teamMembers.user': userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
+    const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
+    const totalPages = Math.ceil(totalCount / limit)
+    if (!projects || projects.length === 0) {
+        throw new BadRequestError('No projects')
+    }
+    return { projects, totalCount, totalPages }
+}
+exports.myCreatedProjects = async (userId, page, limit) => {
+    const projects = await Project.find({ createdBy: userId }).skip((page - 1) * limit).limit(limit).populate([
+        { path: 'reqSkills', select: 'name -_id' },
+        { path: 'teamMembers.user', select: 'username avatar.url', }
+    ])
+
+    const totalCount = await Project.countDocuments({ 'teamMembers.user': userId });
+    const totalPages = Math.ceil(totalCount / limit)
+    if (!projects || projects.length === 0) {
+        throw new BadRequestError('No projects')
+    }
+    return { projects, totalCount, totalPages }
+}
+
+exports.myProjectsRequests = async (userId, status, page, limit) => {
+
+    const filter = { userId };
+    if (status) {
+        filter.status = status;
+    }
+
+    const projectsRequests = paginationProjectRequest(ProjectRequest, filter, page, limit)
+
+
+    if (!projectsRequests || projectsRequests.length === 0) {
+        throw new BadRequestError('No project requests')
+    }
+    return projectsRequests
 }
 
