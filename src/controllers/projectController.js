@@ -14,10 +14,14 @@ const getAllProjects = async (req, res, next) => {
         const { sort, search,skills } = req.query;
         let filter = {};
         if (search) {
-            filter = { $text: { $search: search } };
+            filter = {
+                $or: [
+                  { title: { $regex: search, $options: 'i' } },
+                  { description: { $regex: search, $options: 'i' } }
+                ]
+            }
         }
 
-       
         if(skills){
             const skillNames = Array.isArray(skills) ? skills : skills.split(',').map(s=> s.trim())
             if(skillNames.length){
@@ -28,10 +32,7 @@ const getAllProjects = async (req, res, next) => {
                 }
             }
         }
-      
-
         let sortOption = { createdAt: 1 };
-
 
         if (sort === 'mostLiked') {
             sortOption = { likesCount: -1 };
