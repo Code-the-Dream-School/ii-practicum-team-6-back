@@ -10,7 +10,7 @@ exports.signUp = async (req, res, next) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Lax'
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
         });
         res.status(201).json({
             success : true,
@@ -31,7 +31,7 @@ exports.signIn = async (req, res, next) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Lax'
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
         });
         res.status(200).json({
             success : true,
