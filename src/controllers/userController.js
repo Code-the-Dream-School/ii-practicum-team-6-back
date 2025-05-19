@@ -85,7 +85,7 @@ exports.deleteMyProfile = async (req, res, next) => {
 
 
 exports.uploadAvatar = async (req, res, next) => {
-
+    console.log(req.file)
     try {
 
         if (!req.file?.path) {
